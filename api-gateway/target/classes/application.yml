@@ -1,0 +1,21 @@
+server:
+  port: 8090
+spring:
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/api?serverTimezone=Asia/Shanghai
+#    username: root
+#    password: 1345498749...
+  cloud:
+    gateway:
+      routes:
+        - id: after_route
+          uri: http://localhost:8102
+          predicates:
+            - Path=/interface/**
+    nacos:
+      server-addr: 43.142.56.13:8848
+      discovery:
+        namespace: dev
+  application:
+    name: api-gateway

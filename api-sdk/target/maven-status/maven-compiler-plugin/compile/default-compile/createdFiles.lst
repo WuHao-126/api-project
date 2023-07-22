@@ -1,0 +1,5 @@
+com\wuhao\client\ApiClient.class
+com\wuhao\ApiClientConfig.class
+META-INF\spring-configuration-metadata.json
+com\wuhao\model\SDKUser.class
+com\wuhao\util\SignUtils.class
