@@ -5,10 +5,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wuhao.common.Vo.LoginUserVO;
 import com.wuhao.common.entity.UserInterfaceInfo;
 import com.wuhao.project.annotation.AuthCheck;
-import com.wuhao.project.common.BaseResponse;
 import com.wuhao.project.common.DeleteRequest;
 import com.wuhao.project.common.ErrorCode;
-import com.wuhao.project.common.ResultUtils;
+import com.wuhao.project.common.Result;
 import com.wuhao.project.constant.CommonConstant;
 import com.wuhao.project.constant.UserConstant;
 import com.wuhao.project.exception.BusinessException;
@@ -53,7 +52,7 @@ public class UserInterfaceInfoController {
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Long> addUserInterfaceInfo(@RequestBody UserInterfaceInfoAddRequest userInterfaceInfoAddRequest, HttpServletRequest request) {
+    public Result addUserInterfaceInfo(@RequestBody UserInterfaceInfoAddRequest userInterfaceInfoAddRequest, HttpServletRequest request) {
         if (userInterfaceInfoAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -68,7 +67,7 @@ public class UserInterfaceInfoController {
             throw new BusinessException(ErrorCode.OPERATION_ERROR);
         }
         long newUserInterfaceInfoId = userInterfaceInfo.getId();
-        return ResultUtils.success(newUserInterfaceInfoId);
+        return Result.success(newUserInterfaceInfoId);
     }
 
     /**
@@ -80,7 +79,7 @@ public class UserInterfaceInfoController {
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> deleteUserInterfaceInfo(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+    public Result deleteUserInterfaceInfo(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -96,7 +95,7 @@ public class UserInterfaceInfoController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean b = userInterfaceInfoService.removeById(id);
-        return ResultUtils.success(b);
+        return Result.success(b);
     }
 
     /**
@@ -108,7 +107,7 @@ public class UserInterfaceInfoController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> updateUserInterfaceInfo(@RequestBody UserInterfaceInfoUpdateRequest userInterfaceInfoUpdateRequest,
+    public Result updateUserInterfaceInfo(@RequestBody UserInterfaceInfoUpdateRequest userInterfaceInfoUpdateRequest,
                                                          HttpServletRequest request) {
         if (userInterfaceInfoUpdateRequest == null || userInterfaceInfoUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -129,7 +128,7 @@ public class UserInterfaceInfoController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean result = userInterfaceInfoService.updateById(userInterfaceInfo);
-        return ResultUtils.success(result);
+        return Result.success(result);
     }
 
     /**
@@ -140,12 +139,12 @@ public class UserInterfaceInfoController {
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<UserInterfaceInfo> getUserInterfaceInfoById(long id) {
+    public Result getUserInterfaceInfoById(long id) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         UserInterfaceInfo userInterfaceInfo = userInterfaceInfoService.getById(id);
-        return ResultUtils.success(userInterfaceInfo);
+        return Result.success(userInterfaceInfo);
     }
 
     /**
@@ -156,14 +155,14 @@ public class UserInterfaceInfoController {
      */
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @GetMapping("/list")
-    public BaseResponse<List<UserInterfaceInfo>> listUserInterfaceInfo(UserInterfaceInfoQueryRequest userInterfaceInfoQueryRequest) {
+    public Result listUserInterfaceInfo(UserInterfaceInfoQueryRequest userInterfaceInfoQueryRequest) {
         UserInterfaceInfo userInterfaceInfoQuery = new UserInterfaceInfo();
         if (userInterfaceInfoQueryRequest != null) {
             BeanUtils.copyProperties(userInterfaceInfoQueryRequest, userInterfaceInfoQuery);
         }
         QueryWrapper<UserInterfaceInfo> queryWrapper = new QueryWrapper<>(userInterfaceInfoQuery);
         List<UserInterfaceInfo> userInterfaceInfoList = userInterfaceInfoService.list(queryWrapper);
-        return ResultUtils.success(userInterfaceInfoList);
+        return Result.success(userInterfaceInfoList);
     }
 
     /**
@@ -175,7 +174,7 @@ public class UserInterfaceInfoController {
      */
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @GetMapping("/list/page")
-    public BaseResponse<Page<UserInterfaceInfo>> listUserInterfaceInfoByPage(UserInterfaceInfoQueryRequest userInterfaceInfoQueryRequest, HttpServletRequest request) {
+    public Result listUserInterfaceInfoByPage(UserInterfaceInfoQueryRequest userInterfaceInfoQueryRequest, HttpServletRequest request) {
         if (userInterfaceInfoQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -193,7 +192,7 @@ public class UserInterfaceInfoController {
         queryWrapper.orderBy(StringUtils.isNotBlank(sortField),
                 sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
         Page<UserInterfaceInfo> userInterfaceInfoPage = userInterfaceInfoService.page(new Page<>(current, size), queryWrapper);
-        return ResultUtils.success(userInterfaceInfoPage);
+        return Result.success(userInterfaceInfoPage);
     }
 
     @PostMapping("invokecount")

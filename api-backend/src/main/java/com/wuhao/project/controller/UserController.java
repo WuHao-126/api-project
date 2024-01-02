@@ -4,10 +4,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wuhao.common.Vo.LoginUserVO;
 import com.wuhao.common.entity.User;
 import com.wuhao.project.annotation.AuthCheck;
-import com.wuhao.project.common.BaseResponse;
 import com.wuhao.project.common.DeleteRequest;
 import com.wuhao.project.common.ErrorCode;
-import com.wuhao.project.common.ResultUtils;
+import com.wuhao.project.common.Result;
 import com.wuhao.project.constant.UserConstant;
 import com.wuhao.project.exception.BusinessException;
 import com.wuhao.project.exception.ThrowUtils;
@@ -42,7 +41,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/register")
-    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest){
+    public Result userRegister(@RequestBody UserRegisterRequest userRegisterRequest){
        if(userRegisterRequest==null){
            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
        }
@@ -53,7 +52,7 @@ public class UserController {
            return null;
        }
         long result = userService.userRegister(userAccount, userPassword, checkPassword);
-        return ResultUtils.success(result);
+        return Result.success(result);
     }
 
     @GetMapping("/aaa")
@@ -68,7 +67,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest servletRequest) {
+    public Result userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest servletRequest) {
         if (userLoginRequest == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
@@ -79,9 +78,9 @@ public class UserController {
         }
         LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, servletRequest);
         if(loginUserVO==null){
-            return ResultUtils.error(603,"账号或密码错误");
+            return Result.error(603,"账号或密码错误");
         }
-        return ResultUtils.success(loginUserVO);
+        return Result.success(loginUserVO);
     }
 
     /**
@@ -90,7 +89,7 @@ public class UserController {
      * @return
      */
     @GetMapping("/current")
-    public BaseResponse<LoginUserVO> currentUser(HttpServletRequest servletRequest){
+    public Result currentUser(HttpServletRequest servletRequest){
         if(servletRequest==null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -102,7 +101,7 @@ public class UserController {
         User byId = userService.getById(id);
         LoginUserVO LoginUserVO=new LoginUserVO();
         BeanUtils.copyProperties(currentUser,LoginUserVO);
-        return ResultUtils.success(LoginUserVO);
+        return Result.success(LoginUserVO);
     }
 
     /**
@@ -114,13 +113,13 @@ public class UserController {
      */
     @GetMapping("/get")
 //    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<User> getUserById(long id, HttpServletRequest request) {
+    public Result getUserById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User user = userService.getById(id);
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
-        return ResultUtils.success(user);
+        return Result.success(user);
     }
 
     @PostMapping("/accesskey")
@@ -136,12 +135,12 @@ public class UserController {
      * @return
      */
     @PostMapping("/logout")
-    public BaseResponse<Boolean> userLogout(HttpServletRequest servletRequest){
+    public Result userLogout(HttpServletRequest servletRequest){
         if(servletRequest==null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         boolean flag=userService.userLogout(servletRequest);
-        return ResultUtils.success(flag);
+        return Result.success(flag);
     }
 
     /**
@@ -152,7 +151,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/update/my")
-    public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
+    public Result updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
                                               HttpServletRequest request) {
         if (userUpdateMyRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -163,7 +162,7 @@ public class UserController {
         user.setId(loginUser.getId());
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-        return ResultUtils.success(true);
+        return Result.success(true);
     }
 
     /**
@@ -175,13 +174,13 @@ public class UserController {
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
+    public Result listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
                                                    HttpServletRequest request) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
         Page<User> userPage = userService.page(new Page<>(current, size),
                 userService.getQueryWrapper(userQueryRequest));
-        return ResultUtils.success(userPage);
+        return Result.success(userPage);
     }
 
     /**
@@ -191,11 +190,11 @@ public class UserController {
      * @return
      */
     @PostMapping("/delete")
-    public BaseResponse<Boolean> deleteUser(DeleteRequest deleteRequest, HttpServletRequest servletRequest){
+    public Result deleteUser(DeleteRequest deleteRequest, HttpServletRequest servletRequest){
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         boolean b = userService.removeById(deleteRequest.getId());
-        return ResultUtils.success(b);
+        return Result.success(b);
     }
 }

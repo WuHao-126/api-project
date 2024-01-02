@@ -46,7 +46,7 @@ public class InterfaceInfoController {
     InterfaceInfoService interfaceInfoService;
 
     @PostMapping("/add")
-    public BaseResponse<Long> addInterfaceInfo(@RequestParam InterfaceInfoAddRequest interfaceInfoAddRequest, HttpServletRequest request){
+    public Result addInterfaceInfo(@RequestParam InterfaceInfoAddRequest interfaceInfoAddRequest, HttpServletRequest request){
         if(interfaceInfoAddRequest ==null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -58,11 +58,11 @@ public class InterfaceInfoController {
         boolean result = interfaceInfoService.save(interfaceInfo);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         Long id = interfaceInfo.getId();
-        return ResultUtils.success(id);
+        return Result.success(id);
     }
 
     @PostMapping("/delete")
-    public BaseResponse<Boolean> deleteInterfaceInfo(@RequestParam DeleteRequest deleteRequest,HttpServletRequest request){
+    public Result deleteInterfaceInfo(@RequestParam DeleteRequest deleteRequest,HttpServletRequest request){
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -76,11 +76,11 @@ public class InterfaceInfoController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean b = userService.removeById(id);
-        return ResultUtils.success(b);
+        return Result.success(b);
     }
 
     @PostMapping("/update")
-    public BaseResponse<Boolean> updateInterfaceInfo(@RequestParam InterfaceInfoUpdateRequest interfaceInfoUpdateRequest,
+    public Result updateInterfaceInfo(@RequestParam InterfaceInfoUpdateRequest interfaceInfoUpdateRequest,
                                                      HttpServletRequest request){
         if (interfaceInfoUpdateRequest == null || interfaceInfoUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -101,7 +101,7 @@ public class InterfaceInfoController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean result = interfaceInfoService.updateById(interfaceInfo);
-        return ResultUtils.success(result);
+        return Result.success(result);
     }
 
     /**
@@ -111,12 +111,12 @@ public class InterfaceInfoController {
      * @return
      */
     @GetMapping("/get/{id}")
-    public BaseResponse<InterfaceInfo> getInterfaceInfoById(@PathVariable long id) {
+    public Result getInterfaceInfoById(@PathVariable long id) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         InterfaceInfo interfaceInfo = interfaceInfoService.getById(id);
-        return ResultUtils.success(interfaceInfo);
+        return Result.success(interfaceInfo);
     }
 
     /**
@@ -127,14 +127,14 @@ public class InterfaceInfoController {
      */
 //    @AuthCheck(mustRole = "admin")
     @GetMapping("/list")
-    public BaseResponse<List<InterfaceInfo>> listInterfaceInfo(InterfaceInfoQueryRequest interfaceInfoQueryRequest) {
+    public Result listInterfaceInfo(InterfaceInfoQueryRequest interfaceInfoQueryRequest) {
         InterfaceInfo interfaceInfoQuery = new InterfaceInfo();
         if (interfaceInfoQueryRequest != null) {
             BeanUtils.copyProperties(interfaceInfoQueryRequest, interfaceInfoQuery);
         }
         QueryWrapper<InterfaceInfo> queryWrapper = new QueryWrapper<>(interfaceInfoQuery);
         List<InterfaceInfo> interfaceInfoList = interfaceInfoService.list(queryWrapper);
-        return ResultUtils.success(interfaceInfoList);
+        return Result.success(interfaceInfoList);
     }
 
     /**
@@ -145,7 +145,7 @@ public class InterfaceInfoController {
      * @return
      */
     @GetMapping("/list/page")
-    public BaseResponse<Page<InterfaceInfo>> listInterfaceInfoByPage(InterfaceInfoQueryRequest interfaceInfoQueryRequest, HttpServletRequest request) {
+    public Result listInterfaceInfoByPage(InterfaceInfoQueryRequest interfaceInfoQueryRequest, HttpServletRequest request) {
         if (interfaceInfoQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -167,7 +167,7 @@ public class InterfaceInfoController {
         queryWrapper.orderBy(StringUtils.isNotBlank(sortField),
                 sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
         Page<InterfaceInfo> interfaceInfoPage = interfaceInfoService.page(new Page<>(current, size), queryWrapper);
-        return ResultUtils.success(interfaceInfoPage);
+        return Result.success(interfaceInfoPage);
     }
 
     // endregion
@@ -181,7 +181,7 @@ public class InterfaceInfoController {
      */
     @PostMapping("/online")
 //    @AuthCheck(mustRole = "admin")
-    public BaseResponse<Boolean> onlineInterfaceInfo(@RequestBody IdRequest idRequest,
+    public Result onlineInterfaceInfo(@RequestBody IdRequest idRequest,
                                                      HttpServletRequest request) {
         if (idRequest == null || idRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -208,7 +208,7 @@ public class InterfaceInfoController {
         interfaceInfo.setId(id);
         interfaceInfo.setStatus(InterfaceInfoStatusEnum.ONLINE.getValue());
         boolean result = interfaceInfoService.updateById(interfaceInfo);
-        return ResultUtils.success(result);
+        return Result.success(result);
     }
 
     /**
@@ -220,7 +220,7 @@ public class InterfaceInfoController {
      */
     @PostMapping("/offline")
     @AuthCheck(mustRole = "admin")
-    public BaseResponse<Boolean> offlineInterfaceInfo(@RequestBody IdRequest idRequest,
+    public Result offlineInterfaceInfo(@RequestBody IdRequest idRequest,
                                                       HttpServletRequest request) {
         if (idRequest == null || idRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -236,7 +236,7 @@ public class InterfaceInfoController {
         interfaceInfo.setId(id);
         interfaceInfo.setStatus(InterfaceInfoStatusEnum.OFFLINE.getValue());
         boolean result = interfaceInfoService.updateById(interfaceInfo);
-        return ResultUtils.success(result);
+        return Result.success(result);
     }
 
     /**
@@ -247,7 +247,7 @@ public class InterfaceInfoController {
      * @return
      */
     @PostMapping("/invoke")
-    public BaseResponse<Object> invokeInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest,
+    public Result invokeInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest,
                                                     HttpServletRequest request) {
         if (interfaceInfoInvokeRequest == null || interfaceInfoInvokeRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -275,7 +275,7 @@ public class InterfaceInfoController {
         String url = oldInterfaceInfo.getUrl();
         String method = oldInterfaceInfo.getMethod();
         String response = apiClient.getResponse(url, method, paramsMap);
-        return ResultUtils.success(response);
+        return Result.success(response);
     }
 
     @PostMapping("/url")

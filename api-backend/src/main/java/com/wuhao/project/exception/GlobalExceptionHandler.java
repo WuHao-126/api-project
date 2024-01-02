@@ -1,9 +1,8 @@
 package com.wuhao.project.exception;
 
 
-import com.wuhao.project.common.BaseResponse;
 import com.wuhao.project.common.ErrorCode;
-import com.wuhao.project.common.ResultUtils;
+import com.wuhao.project.common.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -19,15 +18,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(com.wuhao.project.exception.BusinessException.class)
-    public BaseResponse<?> businessExceptionHandler(com.wuhao.project.exception.BusinessException e) {
+    public Result businessExceptionHandler(com.wuhao.project.exception.BusinessException e) {
         log.error("BusinessException", e);
-//        return ResultUtils.error(e.getCode(), e.getMessage());
+//        return Result.error(e.getCode(), e.getMessage());
         return null;
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public BaseResponse<?> runtimeExceptionHandler(RuntimeException e) {
+    public Result runtimeExceptionHandler(RuntimeException e) {
         log.error("RuntimeException", e);
-        return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "系统错误");
+        return Result.error(ErrorCode.SYSTEM_ERROR);
     }
 }
