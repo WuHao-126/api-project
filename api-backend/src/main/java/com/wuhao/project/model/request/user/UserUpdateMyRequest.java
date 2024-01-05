@@ -1,4 +1,4 @@
-package com.wuhao.project.model.user;
+package com.wuhao.project.model.request.user;
 
 import lombok.Data;
 

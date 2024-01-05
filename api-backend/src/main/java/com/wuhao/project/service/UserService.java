@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wuhao.common.Vo.LoginUserVO;
 import com.wuhao.common.entity.User;
-import com.wuhao.project.model.user.UserQueryRequest;
+import com.wuhao.project.model.request.user.UserQueryRequest;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -75,4 +75,5 @@ public interface UserService extends IService<User> {
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
     User getAccessKeyUser(String accessKsy);
+
 }

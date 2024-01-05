@@ -1,11 +1,14 @@
 package com.wuhao.project.common;
 
+import lombok.Data;
+
 /**
  * @Author: wuhao
  * @Datetime: TODO
  * @Description: TODO
  */
-public class Result {
+@Data
+public class Result{
     private int code;
     private Object data;
     private String message;
@@ -16,10 +19,10 @@ public class Result {
         this.message=message;
     }
     public static Result success(Object data){
-         return new Result(200,data,null);
+         return new Result(0,data,null);
     }
     public static Result success(){
-        return new Result(200,null,null);
+        return new Result(0,null,null);
     }
     public static Result error(int code,String message){
         return new Result(code,null,message);

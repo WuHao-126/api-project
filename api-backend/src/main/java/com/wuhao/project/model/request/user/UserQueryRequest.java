@@ -1,4 +1,4 @@
-package com.wuhao.project.model.user;
+package com.wuhao.project.model.request.user;
 
 
 import com.wuhao.project.common.PageRequest;
@@ -20,25 +20,13 @@ public class UserQueryRequest extends PageRequest implements Serializable {
     private Long id;
 
     /**
-     * 开放平台id
-     */
-    private String unionId;
-
-    /**
-     * 公众号openId
-     */
-    private String mpOpenId;
-
-    /**
      * 用户昵称
      */
     private String userName;
-
     /**
-     * 简介
+     * 账号
      */
-    private String userProfile;
-
+    private String account;
     /**
      * 用户角色：user/admin/ban
      */

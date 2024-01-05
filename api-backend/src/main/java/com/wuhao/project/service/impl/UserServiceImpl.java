@@ -10,7 +10,7 @@ import com.wuhao.project.common.ErrorCode;
 import com.wuhao.project.exception.BusinessException;
 import com.wuhao.project.mapper.UserMapper;
 import com.wuhao.project.model.enmus.UserRoleEnum;
-import com.wuhao.project.model.user.UserQueryRequest;
+import com.wuhao.project.model.request.user.UserQueryRequest;
 import com.wuhao.project.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -220,8 +220,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = userMapper.selectOne(queryWrapper);
         return user;
     }
-
-
 }
 
 

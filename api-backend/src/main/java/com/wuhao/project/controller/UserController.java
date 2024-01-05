@@ -10,10 +10,10 @@ import com.wuhao.project.common.Result;
 import com.wuhao.project.constant.UserConstant;
 import com.wuhao.project.exception.BusinessException;
 import com.wuhao.project.exception.ThrowUtils;
-import com.wuhao.project.model.request.UserLoginRequest;
-import com.wuhao.project.model.request.UserRegisterRequest;
-import com.wuhao.project.model.user.UserQueryRequest;
-import com.wuhao.project.model.user.UserUpdateMyRequest;
+import com.wuhao.project.model.request.user.UserLoginRequest;
+import com.wuhao.project.model.request.user.UserRegisterRequest;
+import com.wuhao.project.model.request.user.UserQueryRequest;
+import com.wuhao.project.model.request.user.UserUpdateMyRequest;
 import com.wuhao.project.service.UserService;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
@@ -55,11 +55,6 @@ public class UserController {
         return Result.success(result);
     }
 
-    @GetMapping("/aaa")
-    public String aaa(){
-        return "aaa";
-    }
-
     /**
      * 用户登录
      * @param
@@ -80,7 +75,7 @@ public class UserController {
         if(loginUserVO==null){
             return Result.error(603,"账号或密码错误");
         }
-        return Result.success(loginUserVO);
+        return Result.success(loginUserVO.getId().toString());
     }
 
     /**
@@ -88,20 +83,22 @@ public class UserController {
      * @param servletRequest
      * @return
      */
-    @GetMapping("/current")
-    public Result currentUser(HttpServletRequest servletRequest){
+    @GetMapping("/current/{userId}")
+    public Result getCurrentUser(@PathVariable("userId") String userId,HttpServletRequest servletRequest){
         if(servletRequest==null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        LoginUserVO currentUser = (LoginUserVO) servletRequest.getSession().getAttribute(USER_LOGIN_STATE);
+        LoginUserVO currentUser=userService.getLoginUser(servletRequest);
         if(currentUser==null){
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
         Long id = currentUser.getId();
-        User byId = userService.getById(id);
-        LoginUserVO LoginUserVO=new LoginUserVO();
-        BeanUtils.copyProperties(currentUser,LoginUserVO);
-        return Result.success(LoginUserVO);
+        if(Long.parseLong(userId)==id){
+            return Result.success(currentUser);
+        }else{
+            userService.userLogout(servletRequest);
+            throw new BusinessException(ErrorCode.USER_STATUS_ERROR);
+        }
     }
 
     /**

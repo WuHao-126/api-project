@@ -1,4 +1,4 @@
-package com.wuhao.project.model.userinterfaceinfo;
+package com.wuhao.project.model.request.userinterfaceinfo;
 
 import lombok.Data;
 

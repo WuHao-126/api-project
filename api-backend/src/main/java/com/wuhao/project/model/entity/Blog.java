@@ -21,7 +21,10 @@ public class Blog implements Serializable {
      */
     @TableId
     private Long id;
-
+    /**
+     * 文章标题
+     */
+    private String title;
     /**
      * 文章内容
      */
