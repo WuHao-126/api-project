@@ -1,21 +1,36 @@
-server:
-  port: 8090
 spring:
-#  datasource:
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:3306/api?serverTimezone=Asia/Shanghai
-#    username: root
-#    password: 1345498749...
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/api?serverTimezone=Asia/Shanghai
+    username: 1345498749
+    password: 1345498749...
+  redis:
+      host: localhost
+      port: 6379
+      password: 12345678
+  application:
+    name: apigateway
+  profiles:
+    active: dev
   cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+      discovery:
+        namespace: dev
+        group: api-backend
+      config:
+        namespace: dev
+        file-extension: yaml
+        group: api-backend
     gateway:
       routes:
         - id: after_route
           uri: http://localhost:8102
           predicates:
             - Path=/interface/**
-    nacos:
-      server-addr: 43.142.56.13:8848
-      discovery:
-        namespace: dev
-  application:
-    name: api-gateway
+server:
+  port: 8090
+  
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false

@@ -1,7 +1,7 @@
 package com.wuhao.project.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wuhao.common.entity.UserInterfaceInfo;
+import com.wuhao.project.model.entity.UserInterfaceInfo;
 
 /**
  *

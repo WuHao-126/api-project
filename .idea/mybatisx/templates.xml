@@ -5,7 +5,7 @@
       <TemplateContext>
         <option name="generateConfig">
           <GenerateConfig>
-            <option name="annotationType" value="NONE" />
+            <option name="annotationType" value="MYBATIS_PLUS2" />
             <option name="basePackage" value="generator" />
             <option name="basePath" value="src/main/java" />
             <option name="encoding" value="UTF-8" />
@@ -63,16 +63,8 @@
             <option name="tableUIInfoList">
               <list>
                 <TableUIInfo>
-                  <option name="className" value="InterfaceInfo" />
-                  <option name="tableName" value="interface_info" />
-                </TableUIInfo>
-                <TableUIInfo>
-                  <option name="className" value="User" />
-                  <option name="tableName" value="user" />
-                </TableUIInfo>
-                <TableUIInfo>
-                  <option name="className" value="UserInterfaceInfo" />
-                  <option name="tableName" value="user_interface_info" />
+                  <option name="className" value="Comment" />
+                  <option name="tableName" value="comment" />
                 </TableUIInfo>
               </list>
             </option>

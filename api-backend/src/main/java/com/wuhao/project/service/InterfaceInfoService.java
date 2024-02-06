@@ -2,7 +2,7 @@ package com.wuhao.project.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wuhao.common.entity.InterfaceInfo;
+import com.wuhao.project.model.entity.InterfaceInfo;
 
 
 /**

@@ -1,12 +1,8 @@
 package com.wuhao.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wuhao.common.Vo.LoginUserVO;
-import com.wuhao.common.entity.User;
-
-
-import javax.servlet.http.HttpServletRequest;
+import com.wuhao.model.entity.User;
 
 /**
  *
@@ -21,7 +17,7 @@ public interface UserService extends IService<User> {
      * @param userPassword
      * @return
      */
-    LoginUserVO userLogin(String userAccount, String userPassword);
+    User userLogin(String userAccount, String userPassword);
 
 
 }

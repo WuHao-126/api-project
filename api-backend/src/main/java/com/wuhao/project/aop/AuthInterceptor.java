@@ -1,7 +1,7 @@
 package com.wuhao.project.aop;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.wuhao.common.Vo.LoginUserVO;
+import com.wuhao.project.model.entity.User;
 import com.wuhao.project.annotation.AuthCheck;
 import com.wuhao.project.common.ErrorCode;
 import com.wuhao.project.exception.BusinessException;
@@ -47,7 +47,7 @@ public class AuthInterceptor {
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
         // 当前登录用户
-        LoginUserVO user = userService.getLoginUser(request);
+        User user = userService.getLoginUser(request);
         // 拥有任意权限即通过
         if (CollectionUtils.isNotEmpty(anyRole)) {
             String userRole = user.getUserRole();

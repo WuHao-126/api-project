@@ -1,7 +1,7 @@
 package com.wuhao.project.model.vo;
 
 
-import com.wuhao.common.entity.InterfaceInfo;
+import com.wuhao.project.model.entity.InterfaceInfo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

@@ -2,8 +2,8 @@ package com.wuhao.project.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wuhao.common.Vo.LoginUserVO;
-import com.wuhao.common.entity.UserInterfaceInfo;
+import com.wuhao.project.model.entity.User;
+import com.wuhao.project.model.entity.UserInterfaceInfo;
 import com.wuhao.project.annotation.AuthCheck;
 import com.wuhao.project.common.DeleteRequest;
 import com.wuhao.project.common.ErrorCode;
@@ -60,7 +60,7 @@ public class UserInterfaceInfoController {
         BeanUtils.copyProperties(userInterfaceInfoAddRequest, userInterfaceInfo);
         // 校验
         userInterfaceInfoService.validUserInterfaceInfo(userInterfaceInfo, true);
-        LoginUserVO loginUser = userService.getLoginUser(request);
+        User loginUser = userService.getLoginUser(request);
         userInterfaceInfo.setUserId(loginUser.getId());
         boolean result = userInterfaceInfoService.save(userInterfaceInfo);
         if (!result) {
@@ -83,7 +83,7 @@ public class UserInterfaceInfoController {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        LoginUserVO user = userService.getLoginUser(request);
+        User user = userService.getLoginUser(request);
         long id = deleteRequest.getId();
         // 判断是否存在
         UserInterfaceInfo oldUserInterfaceInfo = userInterfaceInfoService.getById(id);
@@ -116,7 +116,7 @@ public class UserInterfaceInfoController {
         BeanUtils.copyProperties(userInterfaceInfoUpdateRequest, userInterfaceInfo);
         // 参数校验
         userInterfaceInfoService.validUserInterfaceInfo(userInterfaceInfo, false);
-        LoginUserVO user = userService.getLoginUser(request);
+        User user = userService.getLoginUser(request);
         long id = userInterfaceInfoUpdateRequest.getId();
         // 判断是否存在
         UserInterfaceInfo oldUserInterfaceInfo = userInterfaceInfoService.getById(id);

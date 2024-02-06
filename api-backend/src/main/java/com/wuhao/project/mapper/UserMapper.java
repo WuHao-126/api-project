@@ -1,7 +1,7 @@
 package com.wuhao.project.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wuhao.common.entity.User;
+import com.wuhao.project.model.entity.User;
 
 /**
  * @Entity generator.domain.User

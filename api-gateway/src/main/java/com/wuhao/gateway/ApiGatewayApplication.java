@@ -16,10 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.stream.Collectors;
 
-@SpringBootApplication(exclude = {
-        DataSourceAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class,
-        HibernateJpaAutoConfiguration.class})
+@SpringBootApplication()
 @EnableFeignClients
 public class ApiGatewayApplication {
 

@@ -2,7 +2,7 @@ package com.wuhao.project.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wuhao.common.entity.InterfaceInfo;
+import com.wuhao.project.model.entity.InterfaceInfo;
 import com.wuhao.project.common.ErrorCode;
 import com.wuhao.project.exception.BusinessException;
 import com.wuhao.project.mapper.InterfaceInfoMapper;

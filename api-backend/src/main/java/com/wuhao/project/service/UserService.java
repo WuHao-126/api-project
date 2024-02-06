@@ -2,8 +2,9 @@ package com.wuhao.project.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wuhao.common.Vo.LoginUserVO;
-import com.wuhao.common.entity.User;
+import com.wuhao.project.model.request.user.UserRegisterRequest;
+import com.wuhao.project.model.vo.LoginUserVO;
+import com.wuhao.project.model.entity.User;
 import com.wuhao.project.model.request.user.UserQueryRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,12 +16,9 @@ public interface UserService extends IService<User> {
 
     /**
      * 注册用户
-     * @param userAccount 注册的账号
-     * @param userPassword 注册的密码
-     * @param checkPassword 再次输入密码
      * @return
      */
-    long userRegister(String userAccount, String userPassword, String checkPassword);
+    long userRegister(UserRegisterRequest userRegisterRequest);
 
     /**
      * 用户登录
@@ -38,7 +36,7 @@ public interface UserService extends IService<User> {
      * @param request
      * @return
      */
-    LoginUserVO getLoginUser(HttpServletRequest request);
+    User getLoginUser(HttpServletRequest request);
 
 
     /**

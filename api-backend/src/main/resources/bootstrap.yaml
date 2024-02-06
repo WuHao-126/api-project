@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: apibackend
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+#      向服务注册中心注册的配置
+      discovery:
+#        命名空间ID
+        namespace: dev
+        group: api-backend
+#        读取注册中心的配置
+      config:
+        file-extension: yaml
+#        命名空间ID
+        namespace: dev
+        group: api-backend
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: 1345498749@qq.com
+    password: rqkmrkcgtoksgjdc
+    properties:
+      mail:
+        debug: true #启动debug调试
+        smtp:
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory #SSL连接配置

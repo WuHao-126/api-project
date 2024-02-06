@@ -1,8 +1,11 @@
 package com.wuhao.project.controller;
 
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.crypto.digest.DigestUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wuhao.common.Vo.LoginUserVO;
-import com.wuhao.common.entity.User;
+import com.wuhao.project.model.vo.LoginUserVO;
+import com.wuhao.project.model.entity.User;
 import com.wuhao.project.annotation.AuthCheck;
 import com.wuhao.project.common.DeleteRequest;
 import com.wuhao.project.common.ErrorCode;
@@ -19,21 +22,28 @@ import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+import java.util.Date;
 
-import static com.wuhao.project.constant.UserConstant.USER_LOGIN_STATE;
-
-@Controller
+@RestController
 @RequestMapping("/user")
-@ResponseBody
 @Api(value = "用户信息操作接口", tags = "用户信息操作接口")
 public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JavaMailSender javaMailSender;
+
+
+    private static String SALT="wuhao";
 
     /**
      * 用户注册
@@ -48,10 +58,16 @@ public class UserController {
        String userAccount=userRegisterRequest.getUserAccount();
        String userPassword=userRegisterRequest.getCheckPassword();
        String checkPassword=userRegisterRequest.getCheckPassword();
-       if(StringUtils.isAllEmpty(userAccount,userPassword,checkPassword)){
-           return null;
+       String email = userRegisterRequest.getEmail();
+       //判断密码参数是否为空
+       if(StringUtils.isAllEmpty(userPassword,checkPassword)){
+           throw new BusinessException(ErrorCode.PARAMS_ERROR);
        }
-        long result = userService.userRegister(userAccount, userPassword, checkPassword);
+        //判断账号或者邮箱是否为空
+       if(StringUtils.isAllEmpty(email,userAccount)){
+           throw new BusinessException(ErrorCode.PARAMS_ERROR);
+       }
+        long result = userService.userRegister(userRegisterRequest);
         return Result.success(result);
     }
 
@@ -79,6 +95,87 @@ public class UserController {
     }
 
     /**
+     * 申请AKSK
+     * @param httpServletRequest
+     * @return
+     */
+    @PostMapping("/apply/ask")
+    public Result applyAKSK(HttpServletRequest httpServletRequest){
+        User loginUser = userService.getLoginUser(httpServletRequest);
+        Long id = loginUser.getId();
+        User user = userService.getById(id);
+        if(user==null){
+            throw new RuntimeException("非法申请AKSK,账户："+loginUser.getUserAccount());
+        }
+        //用户邮箱
+        String email = user.getEmail();
+        if(StringUtils.isEmpty(email)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        String secretKey = user.getSecretKey();
+        String accessKey = user.getAccessKey();
+        String userAccount = user.getUserAccount();
+        if(StringUtils.isAllEmpty(secretKey,accessKey)){
+            //分配aksk
+            String newAccessKey = DigestUtil.md5Hex(SALT + userAccount + RandomUtil.randomNumbers(5));
+            String newSecretKey = DigestUtil.md5Hex(SALT + userAccount + RandomUtil.randomNumbers(8));
+            user.setAccessKey(newAccessKey);
+            user.setSecretKey(newSecretKey);
+            userService.updateById(user);
+            String emailContent="<!DOCTYPE html>\n" +
+                    "<html lang=\"en\">\n" +
+                    "<head>\n" +
+                    "    <meta charset=\"UTF-8\">\n" +
+                    "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+                    "    <title>Document</title>\n" +
+                    "</head>\n" +
+                    "<body>\n" +
+                    "    <div class=\"email-box\">\n" +
+                    "       <h1>API接口开放平台</h1>\n" +
+                    "       <hr>\n" +
+                    "       <div class=\"a\">\n" +
+                    "            <p>尊敬的客户您好！</p>\n" +
+                    "        <div>\n" +
+                    "            <p>AccessKey:"+newAccessKey+"</p>\n" +
+                    "            <p>SecretKey:"+newSecretKey+"</p>\n" +
+                    "        </div>\n" +
+                    "        <div>\n" +
+                    "            <p>请谨慎保管，切勿泄露他人</p>\n" +
+                    "       </div>\n" +
+                    "       \n" +
+                    "       </div>\n" +
+                    "    </div>\n" +
+                    "</body>\n" +
+                    "<style>\n" +
+                    "    *{\n" +
+                    "        margin: 0;\n" +
+                    "        padding: 0;\n" +
+                    "    }\n" +
+                    "    .a{\n" +
+                    "        margin-top: 20px;\n" +
+                    "    }\n" +
+                    "    .email-box{\n" +
+                    "        width: 600px;\n" +
+                    "        height: 330px;\n" +
+                    "        margin: 100px auto;\n" +
+                    "        color: #666666;\n" +
+                    "        text-align: center;\n" +
+                    "    }\n" +
+                    "</style>\n" +
+                    "</html>";
+            SimpleMailMessage smm = new SimpleMailMessage();
+            //TODO
+            smm.setFrom("1345498749@qq.com");//发送者
+            smm.setTo(email);//收件人
+            smm.setSubject("公钥密钥申请");//邮件主题
+            smm.setText(emailContent);//邮件内容
+            javaMailSender.send(smm);//发送邮件
+            return Result.success();
+        }else{
+           throw new BusinessException(ErrorCode.OPERATION_ERROR);
+        }
+    }
+    /**
      * 获取当前用户
      * @param servletRequest
      * @return
@@ -88,7 +185,7 @@ public class UserController {
         if(servletRequest==null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        LoginUserVO currentUser=userService.getLoginUser(servletRequest);
+        User currentUser=userService.getLoginUser(servletRequest);
         if(currentUser==null){
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
@@ -109,7 +206,6 @@ public class UserController {
      * @return
      */
     @GetMapping("/get")
-//    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public Result getUserById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -153,7 +249,7 @@ public class UserController {
         if (userUpdateMyRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        LoginUserVO loginUser = userService.getLoginUser(request);
+        User loginUser = userService.getLoginUser(request);
         User user = new User();
         BeanUtils.copyProperties(userUpdateMyRequest, user);
         user.setId(loginUser.getId());
@@ -166,17 +262,35 @@ public class UserController {
      * 分页获取用户列表（仅管理员）
      *
      * @param userQueryRequest
-     * @param request
      * @return
      */
     @PostMapping("/list/page")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public Result listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
-                                                   HttpServletRequest request) {
+    @AuthCheck(anyRole = {UserConstant.SUPER_ADMIN_ROLE,UserConstant.ADMIN_ROLE})
+    public Result listUserByPage(@RequestBody UserQueryRequest userQueryRequest) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
-        Page<User> userPage = userService.page(new Page<>(current, size),
-                userService.getQueryWrapper(userQueryRequest));
+        Date beginDate = userQueryRequest.getBeginDate();
+        Date endDate = userQueryRequest.getEndDate();
+        QueryWrapper<User> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq(!StringUtils.isBlank(userQueryRequest.getUserRole()),"userRole",userQueryRequest.getUserRole())
+                .like(!StringUtils.isBlank(userQueryRequest.getKeywords()),"userName",userQueryRequest.getKeywords())
+                .or()
+                .like(!StringUtils.isBlank(userQueryRequest.getKeywords()),"userAccount",userQueryRequest.getKeywords())
+                .or()
+                .like(!StringUtils.isEmpty(userQueryRequest.getKeywords()),"email",userQueryRequest.getKeywords())
+                .or()
+                .like(!StringUtils.isEmpty(userQueryRequest.getKeywords()),"phone",userQueryRequest.getKeywords())
+                .between(beginDate!=null && endDate!=null,"createTime",beginDate,endDate)
+                .eq(userQueryRequest.getUserState()!=null,"state",userQueryRequest.getUserState());
+
+        Page<User> userPage = userService.page(new Page<>(current, size),queryWrapper);
+        userPage.getRecords().stream().forEach(data ->{
+            if(StringUtils.isEmpty(data.getAccessKey())){
+                data.setIsExistKey(false);
+            }else{
+                data.setIsExistKey(true);
+            }
+        });
         return Result.success(userPage);
     }
 
@@ -187,7 +301,8 @@ public class UserController {
      * @return
      */
     @PostMapping("/delete")
-    public Result deleteUser(DeleteRequest deleteRequest, HttpServletRequest servletRequest){
+    @AuthCheck(mustRole = UserConstant.SUPER_ADMIN_ROLE)
+    public Result deleteUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest servletRequest){
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
