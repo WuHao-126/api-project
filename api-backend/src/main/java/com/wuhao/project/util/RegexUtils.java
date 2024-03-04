@@ -12,7 +12,7 @@ public class RegexUtils {
      * @return true:符合，false：不符合
      */
     public static boolean isPhoneInvalid(String phone){
-        return mismatch(phone, com.wuhao.project.util.RegexPatterns.PHONE_REGEX);
+        return mismatch(phone, RegexPatterns.PHONE_REGEX);
     }
     /**
      * 是否是无效邮箱格式
@@ -20,7 +20,7 @@ public class RegexUtils {
      * @return true:符合，false：不符合
      */
     public static boolean isEmailInvalid(String email){
-        return mismatch(email, com.wuhao.project.util.RegexPatterns.EMAIL_REGEX);
+        return mismatch(email, RegexPatterns.EMAIL_REGEX);
     }
 
     /**
@@ -29,7 +29,7 @@ public class RegexUtils {
      * @return true:符合，false：不符合
      */
     public static boolean isCodeInvalid(String code){
-        return mismatch(code, com.wuhao.project.util.RegexPatterns.VERIFY_CODE_REGEX);
+        return mismatch(code, RegexPatterns.VERIFY_CODE_REGEX);
     }
 
     /**
@@ -38,13 +38,16 @@ public class RegexUtils {
      * @return
      */
     public static boolean isAccountInvalid(String account){
-        return mismatch(account, com.wuhao.project.util.RegexPatterns.ACCOUNT_REGEX);
+        return mismatch(account, RegexPatterns.ACCOUNT_REGEX);
+    }
+    public static boolean isPasswordInvalid(String password){
+        return mismatch(password,RegexPatterns.PASSWORD_REGEX);
     }
     // 校验是否不符合正则格式
     private static boolean mismatch(String str, String regex){
         if (StrUtil.isBlank(str)) {
             return true;
         }
-        return !str.matches(regex);
+        return str.matches(regex);
     }
 }

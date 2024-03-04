@@ -1,21 +1,15 @@
-package com.wuhao.project.model.vo;
+package com.wuhao.project.model.response;
 
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * 用户视图（脱敏）
- *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
- */
 @Data
-public class UserVO implements Serializable {
+public class LoginUserResponse implements Serializable {
 
     /**
-     * id
+     * 用户 id
      */
     private Long id;
 
@@ -23,7 +17,18 @@ public class UserVO implements Serializable {
      * 用户昵称
      */
     private String userName;
-
+    /**
+     * 用户账号
+     */
+    private String userAccount;
+    /**
+     * 用户邮箱
+     */
+    private String email;
+    /**
+     * 用户手机号
+     */
+    private String phone;
     /**
      * 用户头像
      */
@@ -32,7 +37,7 @@ public class UserVO implements Serializable {
     /**
      * 用户简介
      */
-    private String userProfile;
+    private String description;
 
     /**
      * 用户角色：user/admin/ban
@@ -43,6 +48,11 @@ public class UserVO implements Serializable {
      * 创建时间
      */
     private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
 
     private static final long serialVersionUID = 1L;
 }

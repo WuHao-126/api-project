@@ -1,4 +1,4 @@
-package com.wuhao.project.model.vo;
+package com.wuhao.project.model.response;
 
 
 import com.wuhao.project.model.entity.InterfaceInfo;
@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class InterfaceInfoVO extends InterfaceInfo {
+public class InterfaceInfoResponse extends InterfaceInfo {
 
     /**
      * 调用次数

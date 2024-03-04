@@ -12,7 +12,7 @@ import java.util.Date;
  *
  * @TableName user
  */
-@TableName(value = "user")
+@TableName(value = "tb_user")
 @Data
 public class User implements Serializable {
     /**
@@ -34,6 +34,10 @@ public class User implements Serializable {
      * 用户头像
      */
     private String userAvatar;
+    /**
+     * 用户昵称
+     */
+    private String description;
     /**
      * 用户手机号
      */

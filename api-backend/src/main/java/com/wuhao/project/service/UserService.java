@@ -3,7 +3,7 @@ package com.wuhao.project.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wuhao.project.model.request.user.UserRegisterRequest;
-import com.wuhao.project.model.vo.LoginUserVO;
+import com.wuhao.project.model.response.LoginUserResponse;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.model.request.user.UserQueryRequest;
 
@@ -27,7 +27,7 @@ public interface UserService extends IService<User> {
      * @param servletRequest
      * @return
      */
-    LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest servletRequest);
+    LoginUserResponse userLogin(String userAccount, String userPassword, HttpServletRequest servletRequest);
 
 
     /**
@@ -68,7 +68,7 @@ public interface UserService extends IService<User> {
      *
      * @return
      */
-    LoginUserVO getLoginUserVO(User user);
+    LoginUserResponse getLoginUserVO(User user);
 
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 

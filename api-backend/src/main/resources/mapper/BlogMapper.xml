@@ -10,4 +10,5 @@
         authorAvatar,tag,isHot,
         isTop,createTime,updateTime
     </sql>
+
 </mapper>

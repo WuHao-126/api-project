@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
 import com.wuhao.client.ApiClient;
 import com.wuhao.project.constant.UserConstant;
+import com.wuhao.project.mapper.CommonMapper;
 import com.wuhao.project.model.entity.InterfaceInfo;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.annotation.AuthCheck;
@@ -38,37 +39,30 @@ public class InterfaceInfoController {
     private UserService userService;
     @Autowired
     private InterfaceInfoService interfaceInfoService;
+    @Autowired
+    private CommonMapper commonMapper;
 
     @PostMapping("/add")
-    @AuthCheck(anyRole = {UserConstant.SUPER_ADMIN_ROLE,UserConstant.ADMIN_ROLE})
+//    @AuthCheck(anyRole = {UserConstant.SUPER_ADMIN_ROLE,UserConstant.ADMIN_ROLE})
     public Result addInterfaceInfo(@RequestBody InterfaceInfoAddRequest interfaceInfoAddRequest, HttpServletRequest request){
         if(interfaceInfoAddRequest ==null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         String name = interfaceInfoAddRequest.getName();
-        String requestHeader = interfaceInfoAddRequest.getRequestHeader();
-        String responseHeader = interfaceInfoAddRequest.getResponseHeader();
         String url = interfaceInfoAddRequest.getUrl();
         String description = interfaceInfoAddRequest.getDescription();
         String method = interfaceInfoAddRequest.getMethod();
-        if(StringUtils.isAnyBlank(name,requestHeader,responseHeader,url,description,method)){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-
+        Integer type = interfaceInfoAddRequest.getType();
+        String requestHeaderParams = interfaceInfoAddRequest.getRequestHeaderParams();
+        String responseFieldParams = interfaceInfoAddRequest.getResponseFieldParams();
+//        if(StringUtils.isAnyBlank(name,requestHeaderParams,responseFieldParams,url,description,method)){
+//            return Result.error(ErrorCode.PARAMS_ERROR);
+//        }
         InterfaceInfo interfaceInfo=new InterfaceInfo();
-        List<RequestFieldParam> requestFieldParams = interfaceInfoAddRequest.getRequestFieldParams();
-        List<ResponseFieldParam> responseFieldParams = interfaceInfoAddRequest.getResponseFieldParams();
         //请求参数可以为空，但响应参数不可
-        if(responseFieldParams.size()==0){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        String jsonRequestParam = JSONUtil.toJsonStr(requestFieldParams);
-        String jsonResponseParam = JSONUtil.toJsonStr(responseFieldParams);
         BeanUtils.copyProperties(interfaceInfoAddRequest,interfaceInfo);
-        User loginUser = userService.getLoginUser(request);
-        interfaceInfo.setCreateBy(loginUser.getId());
-        interfaceInfo.setRequestParams(jsonRequestParam);
-        interfaceInfo.setResponseParams(jsonResponseParam);
+//        User loginUser = userService.getLoginUser(request);
+        interfaceInfo.setCreateBy(1l);
         boolean result = interfaceInfoService.save(interfaceInfo);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return Result.success(true);
@@ -138,8 +132,7 @@ public class InterfaceInfoController {
      * 分页获取列表
      * @return
      */
-    @PostMapping("/list/page")
-    @AuthCheck(anyRole = {UserConstant.SUPER_ADMIN_ROLE,UserConstant.ADMIN_ROLE})
+    @PostMapping("/page")
     public Result listInterfaceInfoByPage(@RequestBody InterfaceInfoQueryRequest request) {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -280,8 +273,8 @@ public class InterfaceInfoController {
         return Result.success(response);
     }
 
-    @PostMapping("/url")
-    public InterfaceInfo getInterfaceInfoByUrl(String url,String method){
-        return interfaceInfoService.getInterfaceInfoByUrl(url,method);
+    @PostMapping("/tag")
+    public Result getInterfaceTags(){
+        return Result.success(commonMapper.getBlogTag("INTERFACE"));
     }
 }

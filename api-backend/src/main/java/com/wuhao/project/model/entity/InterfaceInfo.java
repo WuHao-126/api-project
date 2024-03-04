@@ -12,7 +12,7 @@ import java.util.Date;
  * @TableName interface_info
  */
 @Data
-@TableName(value ="interface_info")
+@TableName(value ="tb_interface_info")
 public class InterfaceInfo implements Serializable {
     /**
      * 主键
@@ -24,12 +24,18 @@ public class InterfaceInfo implements Serializable {
      * 名称
      */
     private String name;
-
     /**
      * 描述
      */
     private String description;
-
+    /**
+     * 接口类型
+     */
+    private Integer type;
+    /**
+     * 接口封面
+     */
+    private String cover;
     /**
      * 接口地址
      */
@@ -41,22 +47,22 @@ public class InterfaceInfo implements Serializable {
      *   {"name": "username", "type": "string"}
      * ]
      */
-    private String requestParams;
+    private String requestFieldParams;
 
     /**
      * 请求头
      */
-    private String requestHeader;
+    private String requestHeaderParams;
 
     /**
-     * 响应头
+     * 返回类型
      */
-    private String responseHeader;
+    private String responseType;
 
     /**
      * 相应的参数
      */
-    private String responseParams;
+    private String responseFieldParams;
 
     /**
      * 接口状态（0-关闭，1-开启）
@@ -94,7 +100,10 @@ public class InterfaceInfo implements Serializable {
      */
     @TableLogic
     private Integer isDelete;
-
+    /**
+     * 接口被调用次数
+     */
+    private Integer useTotal;
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

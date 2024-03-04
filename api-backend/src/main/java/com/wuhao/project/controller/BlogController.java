@@ -7,21 +7,26 @@ import com.wuhao.project.common.IdRequest;
 import com.wuhao.project.common.Result;
 import com.wuhao.project.exception.BusinessException;
 import com.wuhao.project.model.entity.Blog;
+import com.wuhao.project.model.entity.User;
 import com.wuhao.project.model.request.blog.BlogQueryRequest;
 import com.wuhao.project.service.BlogService;
 import com.wuhao.project.service.CommentService;
 import com.wuhao.project.service.UserService;
+import com.wuhao.project.support.Id.algorithm.SnowFlakeAgorithm;
+import com.wuhao.project.util.IdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @Author: wuhao
  * @Datetime: TODO
  * @Description: TODO
  */
-@RestController("/blog")
+@RestController()
+@RequestMapping("/blog")
 public class BlogController {
     @Autowired
     private BlogService blogService;
@@ -30,16 +35,26 @@ public class BlogController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("page")
+    @PostMapping("/page")
     public Result getBlogPage(@RequestBody BlogQueryRequest blogQueryRequest){
-        long current = blogQueryRequest.getCurrent();
-        long pageSize = blogQueryRequest.getPageSize();
-        Page<Blog> page = blogService.page(new Page<>(current, pageSize), blogService.getQueryWapper(blogQueryRequest));
+//        long current = blogQueryRequest.getCurrent();
+//        long pageSize = blogQueryRequest.getPageSize();
+        Page<Blog> page = blogService.page(new Page<>(1, 10));
         return Result.success(page);
     }
 
     @PostMapping("/insert")
-    public Result insertBlog(@RequestBody Blog blog){
+    public Result insertBlog(@RequestBody Blog blog, HttpServletRequest request){
+        User loginUser = userService.getLoginUser(request);
+        if(loginUser==null){
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        //TODO 设置id
+        //设置文章用户信息
+        blog.setId(IdUtils.getId());
+        blog.setAuthorid(loginUser.getId());
+        blog.setAuthorname(loginUser.getUserName());
+        blog.setAuthoravatar(loginUser.getUserAvatar());
         boolean b = blogService.save(blog);
         if(b){
             return Result.success();
@@ -81,7 +96,16 @@ public class BlogController {
             return Result.success(byId);
         }
     }
+    @GetMapping("/tag")
+    public Result getTagList(){
+        return Result.success(blogService.getTagList());
+    }
 
+    @PostMapping
+    public Result likeBlog(@RequestBody IdRequest idRequest,HttpServletRequest request){
+        boolean b=blogService.likeBlog(idRequest,request);
+        return Result.success(b);
+    }
     @PostMapping("/insert/comment")
     public Result insertComment(){
         return Result.success();
@@ -91,5 +115,6 @@ public class BlogController {
     public Result deleteComment(){
         return Result.success();
     }
+
 
 }

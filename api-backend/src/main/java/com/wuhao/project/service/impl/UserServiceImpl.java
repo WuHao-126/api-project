@@ -1,9 +1,10 @@
 package com.wuhao.project.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wuhao.project.model.request.user.UserRegisterRequest;
-import com.wuhao.project.model.vo.LoginUserVO;
+import com.wuhao.project.model.response.LoginUserResponse;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.common.ErrorCode;
 import com.wuhao.project.exception.BusinessException;
@@ -11,6 +12,7 @@ import com.wuhao.project.mapper.UserMapper;
 import com.wuhao.project.model.enmus.UserRoleEnum;
 import com.wuhao.project.model.request.user.UserQueryRequest;
 import com.wuhao.project.service.UserService;
+import com.wuhao.project.util.IdUtils;
 import com.wuhao.project.util.RegexUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +40,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public long userRegister(UserRegisterRequest userRegisterRequest) {
         // 判断参数是否为空
-        String email = userRegisterRequest.getEmail();
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
@@ -48,24 +49,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         //定义参数规则，检查两次密码是否输入正确
         if(StringUtils.isEmpty(userAccount)){
-            if(StringUtils.isEmpty(email)){
-                throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
-            }else{
-                //校验参数
-                if(RegexUtils.isEmailInvalid(email)){
-                    throw new BusinessException(ErrorCode.PARAMS_ERROR,"邮箱含有特殊字符");
-                }
-            }
-        }else{
-            //参数校验
-            if (userAccount.length() < 4) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号长度小于4");
-            }
-            if(RegexUtils.isAccountInvalid(userAccount)){
-                throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号含有特殊字符");
-            }
+           throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
         }
-
+        //账号参数校验
+        if (userAccount.length() < 4) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号长度小于4");
+        }
+        if(RegexUtils.isAccountInvalid(userAccount)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号含有特殊字符");
+        }
+        //密码参数校验
+//        if(RegexUtils.isPasswordInvalid(userPassword) && RegexUtils.isPasswordInvalid(userPassword)){
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码含有特殊字符");
+//        }
         if (userPassword.length() < 8 || checkPassword.length() < 8) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码长度小于8");
         }
@@ -77,15 +73,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             // 账户不能重复
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("userAccount", userAccount);
-            long count = this.baseMapper.selectCount(queryWrapper);
-            if (count > 0) {
+            User dataUser = this.baseMapper.selectOne(queryWrapper);
+            if (dataUser !=null) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
+            }
+            String email = userRegisterRequest.getEmail();
+            if(StringUtils.isNotBlank(email)){
+                if(RegexUtils.isEmailInvalid(email)){
+                    throw new BusinessException(ErrorCode.PARAMS_ERROR,"邮箱格式不正确");
+                }else{
+                    QueryWrapper<User> queryWrapper1 = new QueryWrapper<>();
+                    queryWrapper1.eq("email", email);
+                    User user = userMapper.selectOne(queryWrapper1);
+                    if(user!=null){
+                        throw new BusinessException(ErrorCode.PARAMS_ERROR,"此邮箱已注册");
+                    }
+                }
             }
             // 2. 加密
             String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
             // 3. 插入数据
             User user = new User();
-            user.setUserAccount(userAccount);
+            BeanUtil.copyProperties(userRegisterRequest,user);
+            user.setId(IdUtils.getId());
             user.setUserPassword(encryptPassword);
             boolean saveResult = this.save(user);
             if (!saveResult) {
@@ -96,7 +106,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest servletRequest) {
+    public LoginUserResponse userLogin(String userAccount, String userPassword, HttpServletRequest servletRequest) {
         if(StringUtils.isAllEmpty(userAccount,userPassword)){
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
         }
@@ -107,9 +117,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码有误");
         }
         //校验账号中是否含有特殊字符
-//        if (RegexUtils.isAccountInvalid(userAccount)) {
-//            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
-//        }
+        if (RegexUtils.isAccountInvalid(userAccount)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
+        }
         String md5Password=DigestUtils.md5DigestAsHex((SALT+userPassword).getBytes());
         User loginUser = query()
                 .eq("userAccount", userAccount)
@@ -118,10 +128,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             log.info("user login failed, userAccount cannot match userPassword");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
-        LoginUserVO LoginUserVO = getLoginUserVO(loginUser);
+        LoginUserResponse LoginUserResponse = getLoginUserVO(loginUser);
         //记录登录态
         servletRequest.getSession().setAttribute(USER_LOGIN_STATE,loginUser);
-        return LoginUserVO;
+        return LoginUserResponse;
     }
 
     @Override
@@ -135,7 +145,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         long userId = currentUser.getId();
         User user = this.getById(userId);
         if (user == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+            throw new BusinessException(ErrorCode.USER_STATUS_ERROR);
         }
         return currentUser;
     }
@@ -189,13 +199,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
 
     @Override
-    public LoginUserVO getLoginUserVO(User user) {
+    public LoginUserResponse getLoginUserVO(User user) {
         if (user == null) {
             return null;
         }
-        LoginUserVO loginUserVO = new LoginUserVO();
-        BeanUtils.copyProperties(user, loginUserVO);
-        return loginUserVO;
+        LoginUserResponse loginUserResponse = new LoginUserResponse();
+        BeanUtils.copyProperties(user, loginUserResponse);
+        return loginUserResponse;
     }
 
     @Override

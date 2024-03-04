@@ -4,7 +4,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wuhao.project.model.vo.LoginUserVO;
+import com.wuhao.project.model.response.LoginUserResponse;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.annotation.AuthCheck;
 import com.wuhao.project.common.DeleteRequest;
@@ -24,11 +24,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @RestController
@@ -85,13 +83,13 @@ public class UserController {
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         if(StringUtils.isAllEmpty(userAccount,userPassword)){
-            return null;
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, servletRequest);
-        if(loginUserVO==null){
+        LoginUserResponse loginUserResponse = userService.userLogin(userAccount, userPassword, servletRequest);
+        if(loginUserResponse ==null){
             return Result.error(603,"账号或密码错误");
         }
-        return Result.success(loginUserVO.getId().toString());
+        return Result.success(loginUserResponse.getId().toString());
     }
 
     /**
@@ -243,19 +241,26 @@ public class UserController {
      * @param request
      * @return
      */
-    @PostMapping("/update/my")
+    @PostMapping("/update")
     public Result updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
                                               HttpServletRequest request) {
         if (userUpdateMyRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        User user = new User();
-        BeanUtils.copyProperties(userUpdateMyRequest, user);
-        user.setId(loginUser.getId());
-        boolean result = userService.updateById(user);
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-        return Result.success(true);
+        Long id = loginUser.getId();
+        Long id1 = userUpdateMyRequest.getId();
+        String userRole = loginUser.getUserRole();
+        //查看是否是本人操作 或者是超级管理操作
+        if(id.equals(id1) || userRole.equals("superadmin")){
+            User userAccount = userService.getOne(new QueryWrapper<User>().eq("userAccount", userUpdateMyRequest.getUserAccount()));
+            BeanUtils.copyProperties(userUpdateMyRequest, userAccount);
+            boolean result = userService.updateById(userAccount);
+            ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+            return Result.success(true);
+        }
+        //TODO 数据异常
+        return null;
     }
 
     /**
@@ -265,7 +270,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/list/page")
-    @AuthCheck(anyRole = {UserConstant.SUPER_ADMIN_ROLE,UserConstant.ADMIN_ROLE})
+//    @AuthCheck(anyRole = {UserConstant.SUPER_ADMIN_ROLE,UserConstant.ADMIN_ROLE})
     public Result listUserByPage(@RequestBody UserQueryRequest userQueryRequest) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();

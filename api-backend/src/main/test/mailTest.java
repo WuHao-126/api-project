@@ -1,17 +1,9 @@
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
-import com.wuhao.project.MainrApplication;
+import com.wuhao.project.util.IdUtils;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @Author: wuhao
@@ -75,28 +67,14 @@ public class mailTest {
 
     @Test
     public void idTest(){
-        long id = IdWorker.getId();
+        Long id = IdUtils.getId();
         System.out.println(id);
     }
     @Test
     public void testJsonData(){
-        Child child=new Child();
-        child.cname="666";
-        child.csex="777";
-        Student student=new Student();
-        student.name="aaaa";
-        student.age="bbbb";
-        student.child=child;
-        Student student1=new Student();
-        student1.name="nvsdf";
-        student1.age="asd";
-        student1.sex="aswd";
-        student1.child=child;
-        List<Student> list=new ArrayList<>();
-        list.add(student);
-        list.add(student1);
-        String s = JSONUtil.toJsonStr(list);
-        System.out.println(s);
+        Integer a=-128;
+        Integer b=-128;
+        System.out.println(a==b);
     }
     @Data
     class Student{
