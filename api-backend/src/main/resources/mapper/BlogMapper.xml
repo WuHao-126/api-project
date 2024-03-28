@@ -10,5 +10,38 @@
         authorAvatar,tag,isHot,
         isTop,createTime,updateTime
     </sql>
+    <select id="getPageList" resultType="com.wuhao.project.model.entity.Blog">
+    SELECT
+    tb.*,
+    COUNT(DISTINCT tbl.id) AS likeNum,
+    COUNT(DISTINCT tbc.id) AS collectNum,
+    COUNT(DISTINCT tc.id) AS messageNum
+    FROM
+        tb_blog tb
+    LEFT JOIN
+        tb_blog_like tbl ON tb.id = tbl.blogId
+    LEFT JOIN
+        tb_blog_collect tbc ON tb.id = tbc.blogId
+    LEFT JOIN
+        tb_comment tc ON tb.id = tc.articleId
+    <where>
+        <if test="request.title != null and request.title != ''">
+          and title like concat('%',concat(#{request.title},'%'))
+        </if>
+        <if test="request.tag != null and request.tag != ''">
+          and tag like concat('%',concat(#{request.tag},'%'))
+        </if>
+        <if test="request.beginDate != null and request.endDate != null">
+          and createTime between #{request.beginDate} and #{request.endDate}
+        </if>
+<!--        <if test="request.newBlog != null and request.newBlog !=''">-->
+<!--            -->
+<!--        </if>-->
+    </where>
+    GROUP BY
+    tb.id
+    ORDER BY
+    tb.createTime desc
+    </select>
 
 </mapper>

@@ -32,6 +32,11 @@ public class InterfaceInfoAddRequest implements Serializable {
      * 接口类型
      */
     private Integer type;
+
+    /**
+     * 接口封面
+     */
+    private String cover;
     /**
      * 请求头参数
      */
@@ -41,14 +46,25 @@ public class InterfaceInfoAddRequest implements Serializable {
      */
     private String requestFieldParams;
     /**
-     * 响应类型
+     * 响应参数
      */
     private String responseFieldParams;
     /**
-     * 请求头
+     * 响应类型
      */
-    private String requestHeader;
-
+    private String responseType;
+    /**
+     * 响应参数示例
+     */
+    private String responseParamsExample;
+    /**
+     * 错误参照码
+     */
+    private String errorCode;
+    /**
+     * 代码示例
+     */
+    private String codeExample;
     /**
      * 请求方法类型
      */

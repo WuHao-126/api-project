@@ -31,6 +31,15 @@ public class InterfaceInfoQueryRequest extends PageRequest implements Serializab
      */
     private String method;
     /**
+     * 接口名称
+     */
+    private String name;
+    /**
+     * 接口类型
+     */
+    private Integer type;
+
+    /**
      * 时间范围
      */
     private Date beginDate;

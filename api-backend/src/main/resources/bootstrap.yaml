@@ -5,7 +5,7 @@ spring:
     active: dev
   cloud:
     nacos:
-      server-addr: 127.0.0.1:8848
+      server-addr: 182.92.7.24:8848
 #      向服务注册中心注册的配置
       discovery:
 #        命名空间ID
@@ -29,6 +29,6 @@ spring:
           socketFactory:
             class: javax.net.ssl.SSLSocketFactory #SSL连接配置
 minio:
-  endpoint: http://localhost:9000
+  endpoint: http://182.92.7.24:9090
   accessKey: minioadmin
   secretKey: minioadmin

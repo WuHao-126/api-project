@@ -1,6 +1,7 @@
 package com.wuhao.project.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wuhao.project.model.request.user.UserRegisterRequest;
@@ -40,6 +41,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public long userRegister(UserRegisterRequest userRegisterRequest) {
         // 判断参数是否为空
+        String userName=userRegisterRequest.getUserName();
+        if(StringUtils.isEmpty(userName)){
+            userName="user_"+ RandomUtil.randomNumbers(6);
+        }
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
@@ -47,7 +52,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if(StringUtils.isAllEmpty(userPassword,checkPassword)){
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
         }
-        //定义参数规则，检查两次密码是否输入正确
+        if (userPassword.length() < 8 || checkPassword.length() < 8) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码长度小于8");
+        }
+        if (!userPassword.equals(checkPassword)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"两次密码不一致");
+        }
+        //密码参数校验
+//        if(RegexUtils.isPasswordInvalid(userPassword) && RegexUtils.isPasswordInvalid(userPassword)){
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码含有特殊字符");
+//        }
         if(StringUtils.isEmpty(userAccount)){
            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
         }
@@ -57,16 +71,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         if(RegexUtils.isAccountInvalid(userAccount)){
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号含有特殊字符");
-        }
-        //密码参数校验
-//        if(RegexUtils.isPasswordInvalid(userPassword) && RegexUtils.isPasswordInvalid(userPassword)){
-//            throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码含有特殊字符");
-//        }
-        if (userPassword.length() < 8 || checkPassword.length() < 8) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码长度小于8");
-        }
-        if (!userPassword.equals(checkPassword)){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"两次密码不一致");
         }
         //查询数据库中是否含有该账号
         synchronized (userAccount.intern()) {
@@ -95,8 +99,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             // 3. 插入数据
             User user = new User();
             BeanUtil.copyProperties(userRegisterRequest,user);
+            user.setUserName(userName);
             user.setId(IdUtils.getId());
             user.setUserPassword(encryptPassword);
+            user.setUserAvatar("default.jpg");
             boolean saveResult = this.save(user);
             if (!saveResult) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
@@ -106,26 +112,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public LoginUserResponse userLogin(String userAccount, String userPassword, HttpServletRequest servletRequest) {
-        if(StringUtils.isAllEmpty(userAccount,userPassword)){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
-        }
-        if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
+    public LoginUserResponse userLogin(String userAccount, String userPassword,String email,HttpServletRequest servletRequest) {
+        if(StringUtils.isAllEmpty(userAccount,email)){
+            throw new BusinessException(ErrorCode.PARAMS_NULL,"参数为空");
         }
         if (userPassword.length() < 4) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码有误");
         }
-        //校验账号中是否含有特殊字符
-        if (RegexUtils.isAccountInvalid(userAccount)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
-        }
         String md5Password=DigestUtils.md5DigestAsHex((SALT+userPassword).getBytes());
-        User loginUser = query()
-                .eq("userAccount", userAccount)
-                .eq("userPassword", md5Password).one();
+        User loginUser=null;
+        if (!StringUtils.isEmpty(userAccount)) {
+            if(userAccount.length() < 4 && RegexUtils.isAccountInvalid(userAccount)){
+                 throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
+            }
+            loginUser = query()
+                    .eq("userAccount", userAccount)
+                    .eq("userPassword", md5Password).one();
+        }else{
+            loginUser = query()
+                    .eq("email", email)
+                    .eq("userPassword", md5Password).one();
+        }
         if(loginUser==null){
-            log.info("user login failed, userAccount cannot match userPassword");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
         LoginUserResponse LoginUserResponse = getLoginUserVO(loginUser);
@@ -139,7 +147,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
         User currentUser = (User) attribute;
         if (currentUser == null || currentUser.getId() == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+            return null;
         }
         // 从数据库查询（追求性能的话可以注释，直接走缓存）
         long userId = currentUser.getId();
@@ -147,7 +155,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (user == null) {
             throw new BusinessException(ErrorCode.USER_STATUS_ERROR);
         }
-        return currentUser;
+        String accessKey = user.getAccessKey();
+        String secretKey = user.getSecretKey();
+        if(!StringUtils.isAnyBlank(accessKey,secretKey)){
+            user.setIsExistKey(true);
+        }
+        return user;
     }
 
     @Override

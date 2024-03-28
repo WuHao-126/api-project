@@ -18,7 +18,7 @@ import java.io.InputStream;
 @Service
 public class UploadServiceImpl implements UploadService {
     @Value("${minio.endpoint}")
-    private String endpoint="http://localhost:9000";
+    private String endpoint="http://182.92.7.24:9090";
 
     @Value("${minio.accessKey}")
     private String accessKey;

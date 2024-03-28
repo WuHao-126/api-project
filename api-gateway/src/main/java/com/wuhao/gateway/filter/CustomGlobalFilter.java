@@ -44,6 +44,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     //黑白名单集合
     private static final List<String> IP_WHITE_LIST= Arrays.asList("127.0.0.1");
     private static final String INTERFACE_HOST = "http://localhost:8090";
+    private static final List<String> IP_TEST=Arrays.asList("0:0:0:0:0:0:0:1","127.0.0.1");
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         // 1. 请求日志
@@ -57,45 +58,49 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         String sourceAddress = request.getLocalAddress().getHostString();
         log.info("请求来源地址：" + sourceAddress);
         log.info("请求来源地址：" + request.getRemoteAddress());
-        // 2. 黑白名单
         ServerHttpResponse response = exchange.getResponse();
-        if(!IP_WHITE_LIST.contains(sourceAddress)){
-            handleNoAuth(response);
-        }
-        // 3. 统一的鉴权
-        HttpHeaders headers = request.getHeaders();
-        //获取公钥
-        String accessKey = headers.getFirst("accessKey");
-        //获取随机数，防止重返攻击
-        String nonce = headers.getFirst("nonce");
-        //获取时间戳
-        String timestamp = headers.getFirst("timestamp");
-        String sign = headers.getFirst("sign");
-        //todo 没有确保唯一性
-        String redisSccessKey = redisTemplate.opsForValue().get("accessKey");
-        if(StringUtils.isEmpty(redisSccessKey)){
-            User user = userMapper.selectOne(new QueryWrapper<User>().eq("accessKey", accessKey));
-            if (user==null) {
-                throw new RuntimeException("无权限");
-            }
-            redisSccessKey=user.getSecretKey();
-            redisTemplate.opsForValue().set("api:gateway:accessKey:"+accessKey,redisSccessKey,7,TimeUnit.DAYS);
-        }
-        //防止重放攻击
-        if (Long.parseLong(nonce) > 10000) {
-            throw new RuntimeException("无权限");
-        }
-        Long currentTime=System.currentTimeMillis()/1000;
-        Long FIVE_MINUTES=60*5L;
-        //时间和当前时间不能超过 5 分钟
-        if (currentTime-Long.parseLong(timestamp)>FIVE_MINUTES) {
-            handleNoAuth(response);
-        }
-        //进行再次加密
-        String serverSign = SignUtils.getSign(redisSccessKey);
-        if (!sign.equals(serverSign)) {
-            throw new RuntimeException("无权限");
-        }
+        //是否是测试数据
+//        if(true){
+//            return chain.filter(exchange);
+//        }
+//        // 2. 黑白名单
+//        if(!IP_WHITE_LIST.contains(sourceAddress)){
+//            handleNoAuth(response);
+//        }
+//        // 3. 统一的鉴权
+//        HttpHeaders headers = request.getHeaders();
+//        //获取公钥
+//        String accessKey = headers.getFirst("accessKey");
+//        //获取随机数，防止重返攻击
+//        String nonce = headers.getFirst("nonce");
+//        //获取时间戳
+//        String timestamp = headers.getFirst("timestamp");
+//        String sign = headers.getFirst("sign");
+//        //todo 没有确保唯一性
+//        String redisSccessKey = redisTemplate.opsForValue().get("accessKey");
+//        if(StringUtils.isEmpty(redisSccessKey)){
+//            User user = userMapper.selectOne(new QueryWrapper<User>().eq("accessKey", accessKey));
+//            if (user==null) {
+//                throw new RuntimeException("无权限");
+//            }
+//            redisSccessKey=user.getSecretKey();
+//            redisTemplate.opsForValue().set("api:gateway:accessKey:"+accessKey,redisSccessKey,7,TimeUnit.DAYS);
+//        }
+//        //防止重放攻击
+//        if (Long.parseLong(nonce) > 10000) {
+//            throw new RuntimeException("无权限");
+//        }
+//        Long currentTime=System.currentTimeMillis()/1000;
+//        Long FIVE_MINUTES=60*5L;
+//        //时间和当前时间不能超过 5 分钟
+//        if (currentTime-Long.parseLong(timestamp)>FIVE_MINUTES) {
+//            handleNoAuth(response);
+//        }
+//        //进行再次加密
+//        String serverSign = SignUtils.getSign(redisSccessKey);
+//        if (!sign.equals(serverSign)) {
+//            throw new RuntimeException("无权限");
+//        }
         //todo 查询是否有该接口  修改表用户查询表次数
 //        Future<InterfaceInfo> submit1 = executorService.submit(() -> userCilent.getInterfaceInfoByUrl(path.substring(0,path.length()-1),method));
 //        InterfaceInfo interfaceInfo=null;
@@ -119,7 +124,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 //        } catch (ExecutionException e) {
 //            e.printStackTrace();
 //        }
-        return chain.filter(exchange);
+        return handleResponse(exchange, chain, 1L, 1L);
     }
     /**
      * 处理响应

@@ -32,11 +32,6 @@ public class Blog implements Serializable {
     private String content;
 
     /**
-     * 文章Html格式
-     */
-    private String contenthtml;
-
-    /**
      * 文章封面
      */
     private String cover;
@@ -71,6 +66,20 @@ public class Blog implements Serializable {
      */
     private Byte istop;
 
+    @TableField(exist = false)
+    private Integer likeNum;
+
+    @TableField(exist = false)
+    private Integer collectNum;
+
+    @TableField(exist = false)
+    private Integer messageNum;
+
+    @TableField(exist = false)
+    private Boolean isNoLike;
+
+    @TableField(exist = false)
+    private Boolean isNoCollect;
     /**
      * 创建时间
      */

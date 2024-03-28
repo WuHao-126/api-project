@@ -1,8 +1,14 @@
 package com.wuhao.project.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wuhao.project.model.entity.Blog;
 import com.wuhao.project.model.entity.Tag;
+import com.wuhao.project.model.request.blog.BlogQueryRequest;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -12,4 +18,27 @@ import java.util.List;
 */
 public interface BlogMapper extends BaseMapper<Blog> {
 
+
+    Page<Blog> getPageList(Page page, @Param("request") BlogQueryRequest request);
+
+    @Insert("Insert into tb_blog_like values(null,#{userId},#{blogId},null)")
+    void addlike(@Param("userId") Long userId, @Param("blogId") Long blogId);
+
+    @Delete("delete from tb_blog_like where blogId=#{blogId} and userId=#{userId}")
+    void deletelike(@Param("userId") Long userId, @Param("blogId") Long blogId);
+
+    @Select("select count(1) from tb_blog_like where blogId=#{blogId} and userId=#{userId}")
+    Integer isNoLike(@Param("userId") Long userId, @Param("blogId") Long blogId);
+
+    @Insert("Insert into tb_blog_collect values(null,#{userId},#{blogId},null)")
+    void addCollect(@Param("userId") Long userId, @Param("blogId") Long blogId);
+
+    @Delete("delete from tb_blog_collect where blogId=#{blogId} and userId=#{userId}")
+    void deleteCollect(@Param("userId") Long userId, @Param("blogId") Long blogId);
+
+    @Select("select count(1) from tb_blog_collect where blogId=#{blogId} and userId=#{userId}")
+    Integer isNoCollect(@Param("userId") Long userId, @Param("blogId") Long blogId);
+
+    @Select("select blogId from tb_blog_collect where userId=#{id}")
+    List<Long> getMyCollection(Long id);
 }

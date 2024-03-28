@@ -9,9 +9,9 @@ import lombok.Data;
  */
 @Data
 public class RequestFieldParam {
-    private Integer id;
-    private String filedName;
+    private String fieldName;
     private String type;
     private String desc;
     private String required;
+    private String value;
 }

@@ -8,9 +8,7 @@ import lombok.Data;
  * @Description: 接口参数
  */
 @Data
-public class ResponseFieldParam {
-    private Integer id;
+public class RequestHeaderParam {
     private String filedName;
-    private String type;
-    private String desc;
+    private String value;
 }

@@ -63,7 +63,18 @@ public class InterfaceInfo implements Serializable {
      * 相应的参数
      */
     private String responseFieldParams;
-
+    /**
+     * 响应参数示例
+     */
+    private String responseParamsExample;
+    /**
+     * 错误参照码
+     */
+    private String errorCode;
+    /**
+     * 代码示例
+     */
+    private String codeExample;
     /**
      * 接口状态（0-关闭，1-开启）
      */

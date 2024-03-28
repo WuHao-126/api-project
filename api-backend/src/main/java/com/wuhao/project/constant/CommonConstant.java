@@ -31,5 +31,10 @@ public interface CommonConstant {
          */
         RandomNumeric;
     }
-    
+
+    String BLOG_LIKE="api:blog:like:";
+
+    String BLOG_Collect="api:blog:collect:";
+
+    String EMAIL_CODE="api:email:code:";
 }

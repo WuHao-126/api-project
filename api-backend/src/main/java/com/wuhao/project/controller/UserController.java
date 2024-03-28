@@ -3,7 +3,11 @@ package com.wuhao.project.controller;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.update.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wuhao.project.common.IdRequest;
+import com.wuhao.project.constant.CommonConstant;
+import com.wuhao.project.model.request.user.*;
 import com.wuhao.project.model.response.LoginUserResponse;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.annotation.AuthCheck;
@@ -13,21 +17,22 @@ import com.wuhao.project.common.Result;
 import com.wuhao.project.constant.UserConstant;
 import com.wuhao.project.exception.BusinessException;
 import com.wuhao.project.exception.ThrowUtils;
-import com.wuhao.project.model.request.user.UserLoginRequest;
-import com.wuhao.project.model.request.user.UserRegisterRequest;
-import com.wuhao.project.model.request.user.UserQueryRequest;
-import com.wuhao.project.model.request.user.UserUpdateMyRequest;
 import com.wuhao.project.service.UserService;
+import com.wuhao.project.util.RegexUtils;
 import io.swagger.annotations.Api;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/user")
@@ -39,6 +44,9 @@ public class UserController {
 
     @Autowired
     private JavaMailSender javaMailSender;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
 
     private static String SALT="wuhao";
@@ -78,18 +86,58 @@ public class UserController {
     @PostMapping("/login")
     public Result userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest servletRequest) {
         if (userLoginRequest == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+            return Result.error(ErrorCode.PARAMS_ERROR);
         }
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
+        String email = userLoginRequest.getEmail();
         if(StringUtils.isAllEmpty(userAccount,userPassword)){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+            return Result.error(ErrorCode.PARAMS_ERROR);
         }
-        LoginUserResponse loginUserResponse = userService.userLogin(userAccount, userPassword, servletRequest);
+        LoginUserResponse loginUserResponse = userService.userLogin(userAccount, userPassword,email,servletRequest);
         if(loginUserResponse ==null){
             return Result.error(603,"账号或密码错误");
         }
         return Result.success(loginUserResponse.getId().toString());
+    }
+
+    @PostMapping("/admin/login")
+    public Result adminLogin(@RequestBody UserLoginRequest userLoginRequest,HttpServletRequest servletRequest){
+        if (userLoginRequest == null) {
+            return Result.error(ErrorCode.PARAMS_ERROR);
+        }
+        String userAccount = userLoginRequest.getUserAccount();
+        String userPassword = userLoginRequest.getUserPassword();
+        if(StringUtils.isAllEmpty(userAccount,userPassword)){
+            return Result.error(ErrorCode.PARAMS_ERROR);
+        }
+        if(StringUtils.isAllEmpty(userAccount,userPassword)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
+        }
+        if (userAccount.length() < 4) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
+        }
+        if (userPassword.length() < 4) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码有误");
+        }
+        //校验账号中是否含有特殊字符
+        if (RegexUtils.isAccountInvalid(userAccount)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
+        }
+        String md5Password= DigestUtils.md5DigestAsHex((SALT+userPassword).getBytes());
+        User loginUser = userService.query()
+                .eq("userAccount", userAccount)
+                .eq("userPassword", md5Password).one();
+        if(loginUser ==null){
+            return Result.error(603,"账号或密码错误");
+        }
+        String userRole = loginUser.getUserRole();
+        if(UserConstant.SUPER_ADMIN_ROLE.equals(userRole) || UserConstant.ADMIN_ROLE.equals(userRole)){
+            return Result.success(loginUser.getId().toString());
+        }else{
+            return Result.error(ErrorCode.NO_AUTH_ERROR);
+        }
+
     }
 
     /**
@@ -185,7 +233,7 @@ public class UserController {
         }
         User currentUser=userService.getLoginUser(servletRequest);
         if(currentUser==null){
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+            return Result.error(ErrorCode.NOT_LOGIN_ERROR);
         }
         Long id = currentUser.getId();
         if(Long.parseLong(userId)==id){
@@ -194,6 +242,11 @@ public class UserController {
             userService.userLogout(servletRequest);
             throw new BusinessException(ErrorCode.USER_STATUS_ERROR);
         }
+    }
+
+    @GetMapping("/current")
+    public Result getCurrentUser(HttpServletRequest request){
+        return Result.success(userService.getLoginUser(request));
     }
 
     /**
@@ -301,17 +354,108 @@ public class UserController {
 
     /**
      * 删除用户
-     * @param deleteRequest
+     * @param idRequest
      * @param servletRequest
      * @return
      */
-    @PostMapping("/delete")
-    @AuthCheck(mustRole = UserConstant.SUPER_ADMIN_ROLE)
-    public Result deleteUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest servletRequest){
-        if (deleteRequest == null || deleteRequest.getId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+    @PostMapping("/state")
+//    @AuthCheck(mustRole = UserConstant.SUPER_ADMIN_ROLE)
+    public Result deleteUser(@RequestBody IdRequest idRequest, HttpServletRequest servletRequest){
+        if (idRequest == null) {
+            return Result.error(ErrorCode.PARAMS_ERROR);
         }
-        boolean b = userService.removeById(deleteRequest.getId());
-        return Result.success(b);
+        User user = userService.query().eq("id", idRequest.getId()).one();
+        if(user==null){
+            return Result.error(ErrorCode.NOT_FOUND_ERROR);
+        }
+        if(UserConstant.SUPER_ADMIN_ROLE.equals(user.getUserRole())){
+            return Result.error(ErrorCode.NO_AUTH_ERROR);
+        }
+        user.setState(idRequest.getOther());
+        boolean b = userService.updateById(user);
+        if(b){
+            return Result.success();
+        }
+        return Result.error(ErrorCode.OPERATION_ERROR);
     }
+
+
+    @PostMapping("/email/code")
+    public Result sendEmailCode(@RequestBody UserEmailCodeRequest request,HttpServletRequest httpServletRequest){
+        User loginUser = userService.getLoginUser(httpServletRequest);
+        if(loginUser==null){
+            return Result.error(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        String email1 = loginUser.getEmail();
+        if(!StringUtils.isEmpty(email1)){
+           return Result.error(ErrorCode.ALREADY_REGISTER);
+        }
+        String email = request.getEmail();
+        if(!RegexUtils.isEmailInvalid(email)){
+            return Result.error(ErrorCode.PARAMS_ERROR);
+        };
+        User email2 = userService.query().eq("email", email).one();
+        if(email2!=null){
+            return Result.error(ErrorCode.ALREADY_REGISTER);
+        }
+        SimpleMailMessage smm = new SimpleMailMessage();
+        String s = RandomUtil.randomNumbers(6);
+        redisTemplate.opsForValue().set(CommonConstant.EMAIL_CODE+email,s,3, TimeUnit.MINUTES);
+        String emailContent="您的验证码为："+s;
+        smm.setFrom("1345498749@qq.com");//发送者
+        smm.setTo(email);//收件人
+        smm.setSubject("欢迎申请API接口");//邮件主题
+        smm.setText(emailContent);//邮件内容
+//        javaMailSender.send(smm);//发送邮件
+        return Result.success();
+    }
+
+    @PostMapping("/email/bind")
+    public Result bindEmail(@RequestBody UserEmailCodeRequest userEmailCodeRequest,HttpServletRequest request){
+        User loginUser = userService.getLoginUser(request);
+        if(loginUser==null){
+            return Result.error(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        String email = userEmailCodeRequest.getEmail();
+        String code = userEmailCodeRequest.getCode();
+        if(StringUtils.isAnyBlank(email,code)){
+            return Result.error(ErrorCode.PARAMS_ERROR);
+        }
+        String s = redisTemplate.opsForValue().get(CommonConstant.EMAIL_CODE + email);
+        if(!code.equals(s)){
+            return Result.error(ErrorCode.ERROR_CODE);
+        }
+        loginUser.setEmail(email);
+        userService.updateById(loginUser);
+        return Result.success();
+    }
+    @GetMapping("key")
+    public Result createKey(HttpServletRequest request){
+        User loginUser = userService.getLoginUser(request);
+        if(loginUser==null){
+            return Result.error(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        String userAccount = loginUser.getUserAccount();
+        String accessKey1 = loginUser.getAccessKey();
+        String secretKey1 = loginUser.getSecretKey();
+        String email = loginUser.getEmail();
+        if(StringUtils.isEmpty(email)){
+            //账户封禁
+            loginUser.setState(1);
+            userService.updateById(loginUser);
+            userService.userLogout(request);
+            throw new BusinessException(606,"账号:"+userAccount+"非法获取数据");
+        }
+        if(StringUtils.isAllEmpty(accessKey1,secretKey1)){
+            String accessKey = DigestUtil.md5Hex(SALT + userAccount + RandomUtil.randomNumbers(5));
+            String secretKey = DigestUtil.md5Hex(SALT + userAccount + RandomUtil.randomNumbers(8));
+            loginUser.setAccessKey(accessKey);
+            loginUser.setSecretKey(secretKey);
+            userService.updateById(loginUser);
+        }
+        //TODO 没有数据隐藏
+        return Result.success(loginUser);
+    }
+
+
 }

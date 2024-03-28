@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wuhao.project.mapper.WebInfoMapper">
+
+
+    <select id="getTimeList" resultType="com.wuhao.project.model.response.TimeoutInterfaceResponse">
+          select
+        tti.id as id,
+        tti.interface_id as interfaceId,
+        ti.name as name,
+        ti.url as url,
+        tti.response_time as responseTime,
+        tti.create_time as createTime
+        from
+        tb_timeout_interface  tti
+        left join tb_interface_info as ti on tti.interface_id=ti.id
+    </select>
+    <select id="getExceptionalList" resultType="com.wuhao.project.model.entity.ExceptionalLog">
+        select
+        *
+        from
+        tb_exceptional_log
+    </select>
+</mapper>

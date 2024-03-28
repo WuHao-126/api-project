@@ -1,5 +1,6 @@
 package com.wuhao.project.model.request.blog;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wuhao.project.common.PageRequest;
 import lombok.Data;
 
@@ -29,7 +30,14 @@ public class BlogQueryRequest extends PageRequest {
      */
     private Integer isHot;
     /**
+     * 最新文章
+     */
+    private String newBlog;
+    /**
      * 时间范围
      */
-    private LocalDateTime localDateTime;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDateTime beginDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDateTime endDate;
 }

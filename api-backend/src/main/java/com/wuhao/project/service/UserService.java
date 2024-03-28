@@ -27,7 +27,7 @@ public interface UserService extends IService<User> {
      * @param servletRequest
      * @return
      */
-    LoginUserResponse userLogin(String userAccount, String userPassword, HttpServletRequest servletRequest);
+    LoginUserResponse userLogin(String userAccount, String userPassword,String email, HttpServletRequest servletRequest);
 
 
     /**

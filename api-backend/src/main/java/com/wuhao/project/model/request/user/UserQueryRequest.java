@@ -35,6 +35,7 @@ public class UserQueryRequest extends PageRequest implements Serializable {
      * 时间范围
      */
     private Date beginDate;
+
     private Date endDate;
 
     private static final long serialVersionUID = 1L;

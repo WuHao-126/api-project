@@ -1,6 +1,7 @@
 package com.wuhao.project.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wuhao.project.common.IdRequest;
 import com.wuhao.project.model.entity.Blog;
@@ -18,5 +19,11 @@ public interface BlogService extends IService<Blog> {
 
     QueryWrapper<Blog> getQueryWapper(BlogQueryRequest blogQueryRequest);
 
-    boolean likeBlog(IdRequest idRequest, HttpServletRequest request);
+    Integer likeBlog(IdRequest idRequest, HttpServletRequest request);
+
+    Page<Blog> getPageList(Page page, BlogQueryRequest blogQueryRequest,HttpServletRequest request);
+
+    Integer collectBlog(IdRequest idRequest, HttpServletRequest request);
+
+    List<Long> getMyCollection(Long id);
 }
