@@ -5,7 +5,7 @@ spring:
     name: api-interface
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/api?serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://182.92.7.24:3306/api?serverTimezone=Asia/Shanghai
     username: root
     password: 1345498749...
 mybatis-plus:

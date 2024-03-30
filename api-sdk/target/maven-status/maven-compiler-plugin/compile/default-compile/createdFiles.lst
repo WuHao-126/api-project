@@ -1,3 +1,4 @@
+com\wuhao\factory\RequestMethodFactory.class
 com\wuhao\client\ApiClient.class
 com\wuhao\ApiClientConfig.class
 META-INF\spring-configuration-metadata.json

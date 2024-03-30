@@ -25,8 +25,8 @@ import java.io.InputStream;
 public class UploadController {
     @Autowired
     private UploadService uploadService;
-    @PostMapping
-    public Result uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
+    @PostMapping("/blog")
+    public Result uploadFileBlog(@RequestParam("file") MultipartFile file,String buckent) throws IOException {
         if(file.isEmpty()){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -37,11 +37,11 @@ public class UploadController {
         String absolutePath = tempFile.getAbsolutePath();
         String contentType = file.getContentType();
         String originalFilename = file.getOriginalFilename();
-        uploadService.uploadFile(absolutePath,originalFilename,contentType);
+        uploadService.uploadFileBlog(absolutePath,originalFilename,contentType);
         return Result.success(originalFilename);
     }
-    @PostMapping("markendown")
-    public Result markendownUploadFile(@RequestParam("file") MultipartFile file) throws IOException {
+    @PostMapping("/markdown")
+    public Result UploadFileMarkdown(@RequestParam("file") MultipartFile file) throws IOException {
         if(file.isEmpty()){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -52,8 +52,38 @@ public class UploadController {
         String absolutePath = tempFile.getAbsolutePath();
         String contentType = file.getContentType();
         String originalFilename = file.getOriginalFilename();
-        String s = uploadService.uploadFile(absolutePath, originalFilename, contentType);
+        String s = uploadService.uploadFileMarkdown(absolutePath, originalFilename, contentType);
         return Result.success(s);
+    }
+    @PostMapping("/interface")
+    public Result UploadFileInterface(@RequestParam("file") MultipartFile file) throws IOException {
+        if(file.isEmpty()){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        //创建临时文件
+        File tempFile=File.createTempFile("minio",".temp");
+        file.transferTo(tempFile);
+        //获得文件路径
+        String absolutePath = tempFile.getAbsolutePath();
+        String contentType = file.getContentType();
+        String originalFilename = file.getOriginalFilename();
+        String s = uploadService.uploadFileInterface(absolutePath, originalFilename, contentType);
+        return Result.success(originalFilename);
+    }
+    @PostMapping("/user")
+    public Result UploadFileUser(@RequestParam("file") MultipartFile file) throws IOException {
+        if(file.isEmpty()){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        //创建临时文件
+        File tempFile=File.createTempFile("minio",".temp");
+        file.transferTo(tempFile);
+        //获得文件路径
+        String absolutePath = tempFile.getAbsolutePath();
+        String contentType = file.getContentType();
+        String originalFilename = file.getOriginalFilename();
+        String s = uploadService.uploadFileUser(absolutePath, originalFilename, contentType);
+        return Result.success(originalFilename);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.wuhao.project.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wuhao.project.common.DeleteRequest;
 import com.wuhao.project.common.ErrorCode;
@@ -48,10 +49,9 @@ public class BlogController {
      */
     @PostMapping("/page")
     public Result getBlogPage(@RequestBody BlogQueryRequest blogQueryRequest,HttpServletRequest request){
-//        long current = blogQueryRequest.getCurrent();
-//        long pageSize = blogQueryRequest.getPageSize();
-//        Page<Blog> page = blogService.page(new Page<>(1, 10));
-        Page<Blog> pageList=blogService.getPageList(new Page(1,10),blogQueryRequest,request);
+        long current = blogQueryRequest.getCurrent();
+        long pageSize = blogQueryRequest.getPageSize();
+        Page<Blog> pageList=blogService.getPageList(new Page(current,pageSize),blogQueryRequest,request);
         return Result.success(pageList);
     }
 
@@ -89,12 +89,11 @@ public class BlogController {
      */
     @PostMapping("/delete")
     public Result deleteBlogById(@RequestBody DeleteRequest deleteRequest){
-        boolean b = blogService.removeById(deleteRequest.getId());
-        if(b){
-            return Result.success();
-        }else{
-            return Result.error(ErrorCode.DELETE_ERROR);
+        if(deleteRequest==null){
+            return Result.error(ErrorCode.PARAMS_NULL);
         }
+        blogService.deleteBlog(deleteRequest.getId());
+        return Result.success();
     }
 
     /**

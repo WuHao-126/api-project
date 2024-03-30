@@ -34,6 +34,10 @@ public class UserUpdateMyRequest implements Serializable {
      */
     private String oldUserPassword;
     /**
+     * 用户签名
+     */
+    private String description;
+    /**
      * 邮箱
      */
     private String email;

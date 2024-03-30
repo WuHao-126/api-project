@@ -25,7 +25,7 @@ public interface BlogMapper extends BaseMapper<Blog> {
     void addlike(@Param("userId") Long userId, @Param("blogId") Long blogId);
 
     @Delete("delete from tb_blog_like where blogId=#{blogId} and userId=#{userId}")
-    void deletelike(@Param("userId") Long userId, @Param("blogId") Long blogId);
+    void cancelLike(@Param("userId") Long userId, @Param("blogId") Long blogId);
 
     @Select("select count(1) from tb_blog_like where blogId=#{blogId} and userId=#{userId}")
     Integer isNoLike(@Param("userId") Long userId, @Param("blogId") Long blogId);
@@ -34,11 +34,17 @@ public interface BlogMapper extends BaseMapper<Blog> {
     void addCollect(@Param("userId") Long userId, @Param("blogId") Long blogId);
 
     @Delete("delete from tb_blog_collect where blogId=#{blogId} and userId=#{userId}")
-    void deleteCollect(@Param("userId") Long userId, @Param("blogId") Long blogId);
+    void cancelCollect(@Param("userId") Long userId, @Param("blogId") Long blogId);
 
     @Select("select count(1) from tb_blog_collect where blogId=#{blogId} and userId=#{userId}")
     Integer isNoCollect(@Param("userId") Long userId, @Param("blogId") Long blogId);
 
     @Select("select blogId from tb_blog_collect where userId=#{id}")
     List<Long> getMyCollection(Long id);
+
+    @Delete("delete from tb_blog_like where blogId=#{id}")
+    void deleteLike(Long id);
+
+    @Delete("delete from tb_blog_collect where blogId=#{id}")
+    void deleteCollect(Long id);
 }

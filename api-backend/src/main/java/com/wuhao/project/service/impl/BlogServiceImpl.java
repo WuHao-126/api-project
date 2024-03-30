@@ -10,15 +10,18 @@ import com.wuhao.project.exception.BusinessException;
 import com.wuhao.project.mapper.BlogMapper;
 import com.wuhao.project.mapper.CommonMapper;
 import com.wuhao.project.model.entity.Blog;
+import com.wuhao.project.model.entity.Comment;
 import com.wuhao.project.model.entity.Tag;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.model.request.blog.BlogQueryRequest;
 import com.wuhao.project.service.BlogService;
+import com.wuhao.project.service.CommentService;
 import com.wuhao.project.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -38,6 +41,8 @@ implements BlogService {
     private StringRedisTemplate stringRedisTemplate;
     @Autowired
     private CommonMapper commonMapper;
+    @Autowired
+    private CommentService commentService;
 
     @Override
     public List<Tag> getTagList() {
@@ -72,7 +77,7 @@ implements BlogService {
             return 1;
         }else{
             Long remove = stringRedisTemplate.opsForSet().remove(CommonConstant.BLOG_LIKE + blogId, userId + "");
-            blogMapper.deletelike(userId,blogId);
+            blogMapper.cancelLike(userId,blogId);
             return -1;
         }
     }
@@ -128,7 +133,7 @@ implements BlogService {
             return 1;
         }else{
             Long remove = stringRedisTemplate.opsForSet().remove(CommonConstant.BLOG_Collect + blogId, userId + "");
-            blogMapper.deleteCollect(userId,blogId);
+            blogMapper.cancelCollect(userId,blogId);
             return -1;
         }
     }
@@ -136,5 +141,21 @@ implements BlogService {
     @Override
     public List<Long> getMyCollection(Long id) {
         return blogMapper.getMyCollection(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBlog(Long id) {
+        log.error(id+"");
+        //删除redis中的数据
+        stringRedisTemplate.delete(CommonConstant.BLOG_Collect+id);
+        stringRedisTemplate.delete(CommonConstant.BLOG_LIKE+id);
+        //删除博客
+        blogMapper.deleteById(id);
+        //删除相关评论
+        commentService.remove(new QueryWrapper<Comment>().eq("articleId", id));
+        //删除收藏
+        blogMapper.deleteLike(id);
+        blogMapper.deleteCollect(id);
     }
 }

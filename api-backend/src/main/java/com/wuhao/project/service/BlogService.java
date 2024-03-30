@@ -26,4 +26,6 @@ public interface BlogService extends IService<Blog> {
     Integer collectBlog(IdRequest idRequest, HttpServletRequest request);
 
     List<Long> getMyCollection(Long id);
+
+    void deleteBlog(Long id);
 }

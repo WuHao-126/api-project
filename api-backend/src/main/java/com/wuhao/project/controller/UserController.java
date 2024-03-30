@@ -17,6 +17,8 @@ import com.wuhao.project.common.Result;
 import com.wuhao.project.constant.UserConstant;
 import com.wuhao.project.exception.BusinessException;
 import com.wuhao.project.exception.ThrowUtils;
+import com.wuhao.project.service.BlogService;
+import com.wuhao.project.service.CommentService;
 import com.wuhao.project.service.UserService;
 import com.wuhao.project.util.RegexUtils;
 import io.swagger.annotations.Api;
@@ -47,6 +49,13 @@ public class UserController {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private BlogService blogService;
+
+    @Autowired
+    private CommentService commentService;
+
 
 
     private static String SALT="wuhao";
@@ -308,7 +317,16 @@ public class UserController {
         if(id.equals(id1) || userRole.equals("superadmin")){
             User userAccount = userService.getOne(new QueryWrapper<User>().eq("userAccount", userUpdateMyRequest.getUserAccount()));
             BeanUtils.copyProperties(userUpdateMyRequest, userAccount);
+            //修改用户表的信息
             boolean result = userService.updateById(userAccount);
+            //修改博客里面的信息
+            blogService.update().set("authorName",userUpdateMyRequest.getUserName())
+                    .set("authorAvatar",userUpdateMyRequest.getUserAvatar())
+                    .eq("authorId",id);
+            //修改评论里面的信息
+            commentService.update().set("userName",userUpdateMyRequest.getUserName())
+                    .set("userAvatar",userUpdateMyRequest.getUserAvatar())
+                    .eq("userId",id);
             ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
             return Result.success(true);
         }
