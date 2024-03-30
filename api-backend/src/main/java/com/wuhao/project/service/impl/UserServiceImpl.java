@@ -19,10 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.Calendar;
 
 import static com.wuhao.project.constant.UserConstant.USER_LOGIN_STATE;
 
@@ -38,6 +41,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private StringRedisTemplate redisTemplate;
     @Override
     public long userRegister(UserRegisterRequest userRegisterRequest) {
         // 判断参数是否为空
@@ -48,6 +53,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
+        String email = userRegisterRequest.getEmail();
         //检查密码参数是否为空
         if(StringUtils.isAllEmpty(userPassword,checkPassword)){
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
@@ -62,52 +68,66 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 //        if(RegexUtils.isPasswordInvalid(userPassword) && RegexUtils.isPasswordInvalid(userPassword)){
 //            throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码含有特殊字符");
 //        }
-        if(StringUtils.isEmpty(userAccount)){
+        if(StringUtils.isAllEmpty(userAccount,email)){
            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
-        }
-        //账号参数校验
-        if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号长度小于4");
-        }
-        if(RegexUtils.isAccountInvalid(userAccount)){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号含有特殊字符");
         }
         //查询数据库中是否含有该账号
         synchronized (userAccount.intern()) {
-            // 账户不能重复
-            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("userAccount", userAccount);
-            User dataUser = this.baseMapper.selectOne(queryWrapper);
-            if (dataUser !=null) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
-            }
-            String email = userRegisterRequest.getEmail();
-            if(StringUtils.isNotBlank(email)){
-                if(RegexUtils.isEmailInvalid(email)){
-                    throw new BusinessException(ErrorCode.PARAMS_ERROR,"邮箱格式不正确");
-                }else{
-                    QueryWrapper<User> queryWrapper1 = new QueryWrapper<>();
-                    queryWrapper1.eq("email", email);
-                    User user = userMapper.selectOne(queryWrapper1);
-                    if(user!=null){
-                        throw new BusinessException(ErrorCode.PARAMS_ERROR,"此邮箱已注册");
+            //账号注册
+            if(!StringUtils.isEmpty(userAccount)){
+                //账号参数校验
+                if (userAccount.length() < 4) {
+                    throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号长度小于4");
+                }
+                if(RegexUtils.isAccountInvalid(userAccount)){
+                    throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号含有特殊字符");
+                }
+                // 账户不能重复
+                QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+                queryWrapper.eq("userAccount", userAccount);
+                User dataUser = this.baseMapper.selectOne(queryWrapper);
+                if (dataUser !=null) {
+                    throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
+                }
+                // 2. 加密
+                String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+                // 3. 插入数据
+                User user = new User();
+                BeanUtil.copyProperties(userRegisterRequest,user);
+                user.setUserName(userName);
+                user.setId(IdUtils.getId());
+                user.setUserPassword(encryptPassword);
+                user.setUserAvatar("default.jpg");
+                this.save(user);
+                return user.getId();
+            }else if(!StringUtils.isEmpty(email)){
+                //邮箱注册
+                if (true){
+                    User datauser = this.query().eq("email", email).one();
+                    if(datauser!=null){
+                        throw new BusinessException(ErrorCode.ALREADY_REGISTER,"此邮箱已经注册");
                     }
+                    //TODO 验证码验证
+                    // 2. 加密
+                    String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+                    // 3. 插入数据
+                    User user = new User();
+                    BeanUtil.copyProperties(userRegisterRequest,user);
+                    int year = Calendar.getInstance().get(Calendar.YEAR);
+                    int month = Calendar.getInstance().get(Calendar.MONTH)-1;
+                    int day = Calendar.getInstance().get(Calendar.DATE);
+                    StringBuilder stringBuilder=new StringBuilder();
+                    stringBuilder.append(year).append(month).append(day).append(RandomUtil.randomNumbers(4));
+                    user.setUserAccount(stringBuilder.toString());
+                    user.setUserName(userName);
+                    user.setId(IdUtils.getId());
+                    user.setUserPassword(encryptPassword);
+                    user.setUserAvatar("default.jpg");
+                    this.save(user);
+                    return user.getId();
                 }
             }
-            // 2. 加密
-            String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
-            // 3. 插入数据
-            User user = new User();
-            BeanUtil.copyProperties(userRegisterRequest,user);
-            user.setUserName(userName);
-            user.setId(IdUtils.getId());
-            user.setUserPassword(encryptPassword);
-            user.setUserAvatar("default.jpg");
-            boolean saveResult = this.save(user);
-            if (!saveResult) {
-                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
-            }
-            return user.getId();
+            return 0l;
         }
     }
 

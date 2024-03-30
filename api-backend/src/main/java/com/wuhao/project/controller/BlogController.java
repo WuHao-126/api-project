@@ -102,7 +102,17 @@ public class BlogController {
      * @return
      */
     @PostMapping("/update")
-    public Result updateBlog(@RequestBody Blog blog){
+    public Result updateBlog(@RequestBody Blog blog,HttpServletRequest request){
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser==null){
+            return Result.error(ErrorCode.USER_STATUS_ERROR);
+        }
+        //文章作者Id
+        Long authorid = blog.getAuthorid();
+        Long userId = loginUser.getId();
+        if(!authorid.equals(userId)){
+            return Result.error(ErrorCode.PARAMS_ERROR);
+        }
         boolean b = blogService.updateById(blog);
         if(b){
             return Result.success();
