@@ -175,7 +175,7 @@ public class InterfaceInfoController {
     @PostMapping("/invoke")
     public Result invokeInterface(@RequestBody InvokeInterfaceRequest invokeInterfaceRequest){
         String url = invokeInterfaceRequest.getUrl();
-        String method = "POST";
+        String method = invokeInterfaceRequest.getMethod();
         Map<String,Object> requestParamsMap=new HashMap<>();
         Map<String,String> headerParamsMap=new HashMap<>();
         List<RequestHeaderParam> requestHeaderParams = invokeInterfaceRequest.getRequestHeaderParams();
@@ -281,44 +281,6 @@ public class InterfaceInfoController {
         return Result.success(result);
     }
 
-    /**
-     * 测试调用
-     *
-     * @param interfaceInfoInvokeRequest
-     * @param request
-     * @return
-     */
-//    @PostMapping("/invoke")
-//    public Result invokeInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest,
-//                                                    HttpServletRequest request) {
-//        if (interfaceInfoInvokeRequest == null || interfaceInfoInvokeRequest.getId() <= 0) {
-//            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-//        }
-//        long id = interfaceInfoInvokeRequest.getId();
-//        //请求参数
-//        String userRequestParams = interfaceInfoInvokeRequest.getUserRequestParams();
-//        Gson gson=new Gson();
-//        Map map=new HashMap();
-//        Map paramsMap = gson.fromJson(userRequestParams, map.getClass());
-//        // 判断是否存在
-//        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
-//        if (oldInterfaceInfo == null) {
-//            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
-//        }
-//        if (oldInterfaceInfo.getState() == InterfaceInfoStatusEnum.OFFLINE.getValue()) {
-//            throw new BusinessException(ErrorCode.PARAMS_ERROR, "接口已关闭");
-//        }
-//        User loginUser = userService.getLoginUser(request);
-//        Long loginUserId = loginUser.getId();
-//        User user = userService.getById(loginUserId);
-//        String accessKey = user.getAccessKey();
-//        String secretKey = user.getSecretKey();
-//        ApiClient apiClient=new ApiClient(accessKey,secretKey);
-//        String url = oldInterfaceInfo.getUrl();
-//        String method = oldInterfaceInfo.getMethod();
-//        String response = apiClient.getResponse(url, method, paramsMap);
-//        return Result.success(response);
-//    }
 
     @GetMapping("/tag")
     public Result getInterfaceTags(){

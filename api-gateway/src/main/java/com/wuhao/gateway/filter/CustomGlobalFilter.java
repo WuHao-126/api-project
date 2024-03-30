@@ -1,7 +1,9 @@
 package com.wuhao.gateway.filter;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.wuhao.gateway.entity.TimeoutInterface;
 import com.wuhao.gateway.entity.User;
+import com.wuhao.gateway.mapper.TimeoutInterfaceMapper;
 import com.wuhao.gateway.mapper.UserMapper;
 import com.wuhao.util.SignUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,15 +41,19 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     @Autowired
     private UserMapper userMapper;
 
-    @Autowired(required = true)
+    @Autowired()
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private TimeoutInterfaceMapper timeoutInterfaceMapper;
 
     //黑白名单集合
     private static final List<String> IP_WHITE_LIST= Arrays.asList("127.0.0.1");
-    private static final String INTERFACE_HOST = "http://localhost:8090";
+    private static final String INTERFACE_HOST = "http://www.wuhao.ltd:8090";
     private static final List<String> IP_TEST=Arrays.asList("0:0:0:0:0:0:0:1","127.0.0.1");
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        long startTime = System.currentTimeMillis();
         // 1. 请求日志
         ServerHttpRequest request = exchange.getRequest();
         String path = INTERFACE_HOST + request.getPath().value();
@@ -60,133 +67,64 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         log.info("请求来源地址：" + request.getRemoteAddress());
         ServerHttpResponse response = exchange.getResponse();
         //是否是测试数据
-//        if(true){
+//        if(IP_TEST.contains(sourceAddress)){
 //            return chain.filter(exchange);
 //        }
-//        // 2. 黑白名单
+        // 2. 黑白名单
 //        if(!IP_WHITE_LIST.contains(sourceAddress)){
 //            handleNoAuth(response);
 //        }
-//        // 3. 统一的鉴权
-//        HttpHeaders headers = request.getHeaders();
-//        //获取公钥
-//        String accessKey = headers.getFirst("accessKey");
+        // 3. 统一的鉴权
+        HttpHeaders headers = request.getHeaders();
+        //获取公钥
+        String accessKey = headers.getFirst("accessKey");
 //        //获取随机数，防止重返攻击
-//        String nonce = headers.getFirst("nonce");
+        String nonce = headers.getFirst("nonce");
 //        //获取时间戳
 //        String timestamp = headers.getFirst("timestamp");
-//        String sign = headers.getFirst("sign");
+        String sign = headers.getFirst("sign");
 //        //todo 没有确保唯一性
-//        String redisSccessKey = redisTemplate.opsForValue().get("accessKey");
-//        if(StringUtils.isEmpty(redisSccessKey)){
-//            User user = userMapper.selectOne(new QueryWrapper<User>().eq("accessKey", accessKey));
-//            if (user==null) {
-//                throw new RuntimeException("无权限");
-//            }
-//            redisSccessKey=user.getSecretKey();
-//            redisTemplate.opsForValue().set("api:gateway:accessKey:"+accessKey,redisSccessKey,7,TimeUnit.DAYS);
-//        }
-//        //防止重放攻击
+        String redisSccessKey = redisTemplate.opsForValue().get("accessKey");
+        if(StringUtils.isEmpty(redisSccessKey)){
+            User user = userMapper.selectOne(new QueryWrapper<User>().eq("accessKey", accessKey));
+            if (user==null) {
+                throw new RuntimeException("无权限");
+            }
+            redisSccessKey=user.getSecretKey();
+            redisTemplate.opsForValue().set("api:gateway:accessKey:"+accessKey,redisSccessKey,7,TimeUnit.DAYS);
+        }
+
+        //防止重放攻击
 //        if (Long.parseLong(nonce) > 10000) {
 //            throw new RuntimeException("无权限");
 //        }
 //        Long currentTime=System.currentTimeMillis()/1000;
 //        Long FIVE_MINUTES=60*5L;
-//        //时间和当前时间不能超过 5 分钟
+        //时间和当前时间不能超过 5 分钟
 //        if (currentTime-Long.parseLong(timestamp)>FIVE_MINUTES) {
 //            handleNoAuth(response);
 //        }
-//        //进行再次加密
+        //进行再次加密
 //        String serverSign = SignUtils.getSign(redisSccessKey);
-//        if (!sign.equals(serverSign)) {
-//            throw new RuntimeException("无权限");
-//        }
-        //todo 查询是否有该接口  修改表用户查询表次数
-//        Future<InterfaceInfo> submit1 = executorService.submit(() -> userCilent.getInterfaceInfoByUrl(path.substring(0,path.length()-1),method));
-//        InterfaceInfo interfaceInfo=null;
-//        try {
-//            interfaceInfo = submit1.get();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        } catch (ExecutionException e) {
-//            e.printStackTrace();
-//        }
-//        if(interfaceInfo==null){
-//            throw new RuntimeException("没有该接口");
-//        }
-//        Long interfaceInfoId = interfaceInfo.getId();
-//        Long userId = user.getId();
-//        Future<Boolean> submit2 = executorService.submit(() -> userCilent.invokeCount(interfaceInfoId,userId));
-//       try {
-//           Boolean aBoolean = submit2.get();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        } catch (ExecutionException e) {
-//            e.printStackTrace();
-//        }
-        return handleResponse(exchange, chain, 1L, 1L);
-    }
-    /**
-     * 处理响应
-     *
-     * @param exchange
-     * @param chain
-     * @return
-     */
-    public Mono<Void> handleResponse(ServerWebExchange exchange, GatewayFilterChain chain, long interfaceInfoId, long userId) {
-        try {
-            ServerHttpResponse originalResponse = exchange.getResponse();
-            // 缓存数据的工厂
-            DataBufferFactory bufferFactory = originalResponse.bufferFactory();
-            // 拿到响应码
-            HttpStatus statusCode = originalResponse.getStatusCode();
-            if (statusCode == HttpStatus.OK) {
-                // 装饰，增强能力
-                ServerHttpResponseDecorator decoratedResponse = new ServerHttpResponseDecorator(originalResponse) {
-                    // 等调用完转发的接口后才会执行
-                    @Override
-                    public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-                        log.info("body instanceof Flux: {}", (body instanceof Flux));
-                        if (body instanceof Flux) {
-                            Flux<? extends DataBuffer> fluxBody = Flux.from(body);
-                            // 往返回值里写数据
-                            // 拼接字符串
-                            return super.writeWith(
-                                    fluxBody.map(dataBuffer -> {
-                                        // 7. 调用成功，接口调用次数 + 1 invokeCount
-                                        try {
-//                                            Boolean aBoolean = userCilent.invokeCount(interfaceInfoId, userId);
-                                        } catch (Exception e) {
-                                            log.error("invokeCount error", e);
-                                        }
-                                        byte[] content = new byte[dataBuffer.readableByteCount()];
-                                        dataBuffer.read(content);
-                                        DataBufferUtils.release(dataBuffer);//释放掉内存
-                                        // 构建日志
-                                        StringBuilder sb2 = new StringBuilder(200);
-                                        List<Object> rspArgs = new ArrayList<>();
-                                        rspArgs.add(originalResponse.getStatusCode());
-                                        String data = new String(content, StandardCharsets.UTF_8); //data
-                                        sb2.append(data);
-                                        // 打印日志
-                                        log.info("响应结果：" + data);
-                                        return bufferFactory.wrap(content);
-                                    }));
-                        } else {
-                            // 8. 调用失败，返回一个规范的错误码
-                            log.error("<--- {} 响应code异常", getStatusCode());
-                        }
-                        return super.writeWith(body);
-                    }
-                };
-                // 设置 response 对象为装饰过的
-                return chain.filter(exchange.mutate().response(decoratedResponse).build());
-            }
-            return chain.filter(exchange); // 降级处理返回数据
-        } catch (Exception e) {
-            log.error("网关处理响应异常" + e);
-            return chain.filter(exchange);
+        if (!sign.equals(redisSccessKey)) {
+            throw new RuntimeException("无权限");
         }
+        return chain.filter(exchange).then(
+                Mono.fromRunnable(() -> {
+                    // 在请求处理之后记录结束时间，并计算响应时间
+                    long duration = System.currentTimeMillis() - startTime;
+                    Long interfaceId = timeoutInterfaceMapper.getInterfaceId(path);
+                    if(duration/1000>3){
+                        TimeoutInterface timeoutInterface=new TimeoutInterface();
+                        timeoutInterface.setInterfaceId(interfaceId);
+                        timeoutInterface.setResponseTime(duration/1000.0);
+                        timeoutInterface.setCreateTime(LocalDateTime.now());
+                        timeoutInterfaceMapper.insert(timeoutInterface);
+                    }
+                    timeoutInterfaceMapper.updateInterfaceTotal(interfaceId);
+                        log.info("Request to {} took {} ms", exchange.getRequest().getURI(), duration);
+                })
+        );
     }
     @Override
     public int getOrder() {

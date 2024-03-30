@@ -28,10 +28,10 @@ public class ApiController {
      * @return
      */
     @GetMapping("/randomname")
-    public User userName(HttpServletRequest request){
+    public User userName(String name){
         User user=new User();
         user.setAge("18");
-        user.setName("456789");
+        user.setName(name);
         return user;
     }
     @PostMapping("/user")
@@ -44,7 +44,7 @@ public class ApiController {
     public String qq(Long qq) {
         Map<String,Object> map=new HashMap<>();
         map.put("key","db5ca4ef3fa94ae492c570cc19910f18");
-        map.put("qq","1345498749");
+        map.put("qq",qq);
         HttpResponse response = HttpRequest.get("http://japi.juhe.cn/qqevaluate/qq").form(map).execute();
         String body = response.body();
         System.out.println(body);
@@ -55,7 +55,7 @@ public class ApiController {
     public String xing(String xing) {
         Map<String,Object> map=new HashMap<>();
         map.put("key","75ea046e81c6b98bd7d1403405d18989");
-        map.put("xing","吴");
+        map.put("xing",xing);
         HttpResponse response = HttpRequest.get("http://apis.juhe.cn/fapigx/surname/query").form(map).execute();
         String body = response.body();
         return body;
