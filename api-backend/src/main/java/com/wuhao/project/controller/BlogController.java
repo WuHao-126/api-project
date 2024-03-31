@@ -217,7 +217,13 @@ public class BlogController {
      * @return
      */
     @PostMapping("/delete/comment")
-    public Result deleteComment(){
+    public Result deleteComment(@RequestBody DeleteRequest deleteRequest,HttpServletRequest request){
+        User loginUser = userService.getLoginUser(request);
+        if(loginUser==null){
+             return Result.error(ErrorCode.USER_STATUS_ERROR);
+        }
+        Long id = deleteRequest.getId();
+        commentService.remove(new QueryWrapper<Comment>().eq("id",id).or().eq("parentId",id));
         return Result.success();
     }
 

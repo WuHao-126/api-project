@@ -67,13 +67,13 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         log.info("请求来源地址：" + request.getRemoteAddress());
         ServerHttpResponse response = exchange.getResponse();
         //是否是测试数据
-//        if(IP_TEST.contains(sourceAddress)){
-//            return chain.filter(exchange);
-//        }
+        if(IP_TEST.contains(sourceAddress)){
+            return chain.filter(exchange);
+        }
         // 2. 黑白名单
-//        if(!IP_WHITE_LIST.contains(sourceAddress)){
-//            handleNoAuth(response);
-//        }
+        if(!IP_WHITE_LIST.contains(sourceAddress)){
+            handleNoAuth(response);
+        }
         // 3. 统一的鉴权
         HttpHeaders headers = request.getHeaders();
         //获取公钥
