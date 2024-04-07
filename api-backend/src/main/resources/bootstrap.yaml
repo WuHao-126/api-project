@@ -1,4 +1,9 @@
+
+server:
+  shutdown: graceful
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30000m
   application:
     name: apibackend
   profiles:
@@ -32,3 +37,11 @@ minio:
   endpoint: http://182.92.7.24:9090
   accessKey: minioadmin
   secretKey: minioadmin
+management:
+  endpoint:
+    shutdown:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"

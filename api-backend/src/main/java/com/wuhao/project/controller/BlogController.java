@@ -49,6 +49,11 @@ public class BlogController {
      */
     @PostMapping("/page")
     public Result getBlogPage(@RequestBody BlogQueryRequest blogQueryRequest,HttpServletRequest request){
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         long current = blogQueryRequest.getCurrent();
         long pageSize = blogQueryRequest.getPageSize();
         Page<Blog> pageList=blogService.getPageList(new Page(current,pageSize),blogQueryRequest,request);

@@ -3,6 +3,7 @@ package com.wuhao.project.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wuhao.project.model.entity.ExceptionalLog;
+import com.wuhao.project.model.entity.Tag;
 import com.wuhao.project.model.entity.WebInfo;
 import com.wuhao.project.model.response.TimeoutInterfaceResponse;
 import org.apache.ibatis.annotations.Mapper;
@@ -41,4 +42,7 @@ public interface WebInfoMapper extends BaseMapper {
 
 
     Page<ExceptionalLog> getExceptionalList(Page page);
+
+    @Select("select * from sys_tag")
+    Page<Tag> getAllTags(Page page);
 }

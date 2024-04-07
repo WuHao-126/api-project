@@ -5,6 +5,7 @@ import com.wuhao.project.common.ErrorCode;
 import com.wuhao.project.common.Result;
 import com.wuhao.project.mapper.WebInfoMapper;
 import com.wuhao.project.model.entity.ExceptionalLog;
+import com.wuhao.project.model.entity.Tag;
 import com.wuhao.project.model.entity.WebInfo;
 import com.wuhao.project.model.response.TimeoutInterfaceResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -72,6 +73,12 @@ public class WebInfoController {
     @GetMapping("/exceptional")
     public Result getExceptionalList(Page page){
         Page<ExceptionalLog> page1=webInfoMapper.getExceptionalList(page);
+        return Result.success(page1);
+    }
+
+    @PostMapping("/all/tag")
+    public Result getTagsList(Page page){
+        Page<Tag> page1=webInfoMapper.getAllTags(page);
         return Result.success(page1);
     }
 }

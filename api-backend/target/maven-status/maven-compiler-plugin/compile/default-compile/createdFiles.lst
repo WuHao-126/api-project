@@ -52,6 +52,7 @@ com\wuhao\project\model\request\userinterfaceinfo\UserInterfaceInfoAddRequest.cl
 com\wuhao\project\service\impl\UploadServiceImpl.class
 com\wuhao\project\support\Id\IdWorker.class
 com\wuhao\project\annotation\AuthCheck.class
+com\wuhao\project\controller\EmailController.class
 com\wuhao\project\mapper\CustomizedMapper.class
 com\wuhao\project\common\Result.class
 com\wuhao\project\mapper\CommonMapper.class

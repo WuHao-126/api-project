@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +32,9 @@ public class EmailController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JavaMailSender javaMailSender;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -61,7 +65,7 @@ public class EmailController {
         smm.setTo(email);//收件人
         smm.setSubject("欢迎申请API接口");//邮件主题
         smm.setText(emailContent);//邮件内容
-//        javaMailSender.send(smm);//发送邮件
+        javaMailSender.send(smm);//发送邮件
         return Result.success();
     }
 
@@ -83,7 +87,7 @@ public class EmailController {
         smm.setTo(email);//收件人
         smm.setSubject("欢迎申请API接口");//邮件主题
         smm.setText(emailContent);//邮件内容
-//        javaMailSender.send(smm);//发送邮件
+        javaMailSender.send(smm);//发送邮件
         return Result.success();
     }
 

@@ -3,6 +3,8 @@ package com.wuhao.controller;
 
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONUtil;
+import com.wuhao.common.Result;
 import com.wuhao.mapper.UsernameMapper;
 import com.wuhao.model.entity.User;
 import com.wuhao.service.UserService;
@@ -41,14 +43,14 @@ public class ApiController {
 
 
     @GetMapping("/qq")
-    public String qq(Long qq) {
+    public Result qq(Long qq) {
         Map<String,Object> map=new HashMap<>();
         map.put("key","db5ca4ef3fa94ae492c570cc19910f18");
         map.put("qq",qq);
         HttpResponse response = HttpRequest.get("http://japi.juhe.cn/qqevaluate/qq").form(map).execute();
         String body = response.body();
-        System.out.println(body);
-        return body;
+        HashMap<String, Object> hashMap = JSONUtil.toBean(body, HashMap.class);
+        return Result.success(hashMap);
     }
 
     @GetMapping("xing")
@@ -57,6 +59,17 @@ public class ApiController {
         map.put("key","75ea046e81c6b98bd7d1403405d18989");
         map.put("xing",xing);
         HttpResponse response = HttpRequest.get("http://apis.juhe.cn/fapigx/surname/query").form(map).execute();
+        String body = response.body();
+        return body;
+    }
+
+    @GetMapping("/universe")
+    public String getRandomUniverse(Integer count){
+        Map<String,Object> map=new HashMap<>();
+        map.put("api_key","TJTjotiNFKFh541VXfSwmsKdwMBVuRUikDmyPCgN");
+        map.put("count",count);
+        map.put("thumbs",true);
+        HttpResponse response = HttpRequest.get("https://api.nasa.gov/planetary/apod").form(map).execute();
         String body = response.body();
         return body;
     }

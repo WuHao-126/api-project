@@ -50,6 +50,7 @@ F:\springboot\api-project\api-backend\src\main\java\com\wuhao\project\exception\
 F:\springboot\api-project\api-backend\src\main\java\com\wuhao\project\mapper\CustomizedMapper.java
 F:\springboot\api-project\api-backend\src\main\java\com\wuhao\project\config\MybatisPlusConfig.java
 F:\springboot\api-project\api-backend\src\main\java\com\wuhao\project\config\WebMvcConfig.java
+F:\springboot\api-project\api-backend\src\main\java\com\wuhao\project\controller\EmailController.java
 F:\springboot\api-project\api-backend\src\main\java\com\wuhao\project\model\request\interfaces\InterfaceInfoUpdateRequest.java
 F:\springboot\api-project\api-backend\src\main\java\com\wuhao\project\model\request\interfaces\RequestHeaderParam.java
 F:\springboot\api-project\api-backend\src\main\java\com\wuhao\project\model\entity\ExceptionalLog.java
