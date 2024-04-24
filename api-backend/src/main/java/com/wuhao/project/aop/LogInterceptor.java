@@ -20,7 +20,7 @@ import java.util.UUID;
  * @author yupi
  **/
 @Aspect
-@Component
+//@Component
 @Slf4j
 public class LogInterceptor {
 
