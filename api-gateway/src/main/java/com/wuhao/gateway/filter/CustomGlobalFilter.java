@@ -49,12 +49,16 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
     //黑白名单集合
     private static final List<String> IP_WHITE_LIST= Arrays.asList("127.0.0.1");
+    //完整路径
     private static final String INTERFACE_HOST = "http://www.wuhao.ltd:8090";
+    //测试名单
     private static final List<String> IP_TEST=Arrays.asList("0:0:0:0:0:0:0:1","127.0.0.1");
+    //请求头添加
+    private static final String headerKey="API-GATEWAY";
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         long startTime = System.currentTimeMillis();
-        // 1. 请求日志
+        //1、请求日志
         ServerHttpRequest request = exchange.getRequest();
         String path = INTERFACE_HOST + request.getPath().value();
         String method = request.getMethod().toString();
@@ -66,24 +70,26 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         log.info("请求来源地址：" + sourceAddress);
         log.info("请求来源地址：" + request.getRemoteAddress());
         ServerHttpResponse response = exchange.getResponse();
-        //是否是测试数据
+        //2、添加请求头信息
+        request.mutate().headers(httpHeaders -> {
+            httpHeaders.add("X-AuthorizationToken-Header",headerKey);
+        }).build();
+        exchange.mutate().request(request);
+
+        HttpHeaders headers = request.getHeaders();
+        //3、网页测试数据直接通过
         if(IP_TEST.contains(sourceAddress)){
             return chain.filter(exchange);
         }
-        // 2. 黑白名单
+        //4、黑白名单
         if(!IP_WHITE_LIST.contains(sourceAddress)){
             handleNoAuth(response);
         }
-        // 3. 统一的鉴权
-        HttpHeaders headers = request.getHeaders();
-        //获取公钥
+        //5、统一的鉴权
+        //5.1、获取公钥
         String accessKey = headers.getFirst("accessKey");
-//        //获取随机数，防止重返攻击
-        String nonce = headers.getFirst("nonce");
-//        //获取时间戳
-//        String timestamp = headers.getFirst("timestamp");
         String sign = headers.getFirst("sign");
-//        //todo 没有确保唯一性
+//        todo 没有确保唯一性
         String redisSccessKey = redisTemplate.opsForValue().get("accessKey");
         if(StringUtils.isEmpty(redisSccessKey)){
             User user = userMapper.selectOne(new QueryWrapper<User>().eq("accessKey", accessKey));
@@ -93,17 +99,6 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             redisSccessKey=user.getSecretKey();
             redisTemplate.opsForValue().set("api:gateway:accessKey:"+accessKey,redisSccessKey,7,TimeUnit.DAYS);
         }
-
-        //防止重放攻击
-//        if (Long.parseLong(nonce) > 10000) {
-//            throw new RuntimeException("无权限");
-//        }
-//        Long currentTime=System.currentTimeMillis()/1000;
-//        Long FIVE_MINUTES=60*5L;
-        //时间和当前时间不能超过 5 分钟
-//        if (currentTime-Long.parseLong(timestamp)>FIVE_MINUTES) {
-//            handleNoAuth(response);
-//        }
         //进行再次加密
 //        String serverSign = SignUtils.getSign(redisSccessKey);
         if (!sign.equals(redisSccessKey)) {

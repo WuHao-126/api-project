@@ -180,14 +180,6 @@ public class InterfaceInfoController {
         Map<String,String> headerParamsMap=new HashMap<>();
         List<RequestHeaderParam> requestHeaderParams = invokeInterfaceRequest.getRequestHeaderParams();
         List<RequestFieldParam> requestFieldParams = invokeInterfaceRequest.getRequestFieldParams();
-//        for (RequestHeaderParam requestHeaderParam : requestHeaderParams) {
-//            String filedName = requestHeaderParam.getFiledName();
-//            String value = requestHeaderParam.getValue();
-//            if(StringUtils.isAllEmpty(filedName,value)){
-//                return Result.error(ErrorCode.PARAMS_ERROR);
-//            }
-//            headerParamsMap.put(filedName,value);
-//        }
         for (RequestFieldParam requestFieldParam : requestFieldParams) {
             //TODO 先写死
             String required = requestFieldParam.getRequired();

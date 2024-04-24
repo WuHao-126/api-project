@@ -115,5 +115,6 @@
     <orderEntry type="library" name="Maven: cn.hutool:hutool-all:5.8.16" level="project" />
     <orderEntry type="module" module-name="api-sdk" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.6" level="project" />
+    <orderEntry type="library" name="Maven: org.aspectj:aspectjweaver:1.9.7" level="project" />
   </component>
 </module>

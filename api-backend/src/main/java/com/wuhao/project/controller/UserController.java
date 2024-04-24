@@ -100,9 +100,13 @@ public class UserController {
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         String email = userLoginRequest.getEmail();
-        if(StringUtils.isAllEmpty(userAccount,userPassword)){
-            return Result.error(ErrorCode.PARAMS_ERROR);
+        if(StringUtils.isEmpty(userAccount)){
+            return Result.error(ErrorCode.USER_ACCOUNT_NULL);
         }
+        if(StringUtils.isEmpty(userPassword)){
+            return Result.error(ErrorCode.USER_PASSWORD_NULL);
+        }
+
         LoginUserResponse loginUserResponse = userService.userLogin(userAccount, userPassword,email,servletRequest);
         if(loginUserResponse ==null){
             return Result.error(603,"账号或密码错误");

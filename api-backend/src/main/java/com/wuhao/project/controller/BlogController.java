@@ -2,6 +2,7 @@ package com.wuhao.project.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wuhao.project.annotation.Limiter;
 import com.wuhao.project.common.DeleteRequest;
 import com.wuhao.project.common.ErrorCode;
 import com.wuhao.project.common.IdRequest;
@@ -15,6 +16,9 @@ import com.wuhao.project.service.BlogService;
 import com.wuhao.project.service.CommentService;
 import com.wuhao.project.service.UserService;
 import com.wuhao.project.support.Id.algorithm.SnowFlakeAgorithm;
+import com.wuhao.project.support.sensitive.TrafficLimiter;
+import com.wuhao.project.support.sensitive.algorithm.CounterLimiter;
+import com.wuhao.project.support.sensitive.algorithm.SlidingTimeWindowLimiter;
 import com.wuhao.project.util.IdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -42,18 +46,16 @@ public class BlogController {
     @Autowired
     private UserService userService;
 
+    private TrafficLimiter limiter = new SlidingTimeWindowLimiter();
+
     /**
      * 获取博客列表
      * @param blogQueryRequest
      * @return
      */
     @PostMapping("/page")
+    @Limiter
     public Result getBlogPage(@RequestBody BlogQueryRequest blogQueryRequest,HttpServletRequest request){
-        try {
-            Thread.sleep(30000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         long current = blogQueryRequest.getCurrent();
         long pageSize = blogQueryRequest.getPageSize();
         Page<Blog> pageList=blogService.getPageList(new Page(current,pageSize),blogQueryRequest,request);

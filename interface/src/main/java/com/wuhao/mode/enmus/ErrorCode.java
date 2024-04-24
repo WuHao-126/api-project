@@ -6,7 +6,9 @@ package com.wuhao.mode.enmus;
  * @Description: TODO
  */
 public enum  ErrorCode {
-    PARAM_ERROR(50001,"参数")
+    PARAM_ERROR(50001,"参数"),
+    ILLEGAL_ACCESS(50000,"非法访问,亲自重！！！"),
+    CURRENT_REQUEST_MANY(50002,"请求人数过多，请稍后再试");
     ;
     private Integer code;
     private String message;

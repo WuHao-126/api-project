@@ -4,6 +4,8 @@ public enum ErrorCode {
 
     SUCCESS(0, "ok"),
     USER_ACCOUNT_PASSWORD(40000,"账号或者密码错误"),
+    USER_ACCOUNT_NULL(40001,"账号为空"),
+    USER_PASSWORD_NULL(40002,"密码为空"),
     NOT_LOGIN_ERROR(40100, "未登录"),
     USER_STATUS_ERROR(40102,"账号状态异常"),
     USER_REGISTER_ERROR(4103,"注册失败"),
@@ -18,7 +20,8 @@ public enum ErrorCode {
     PARAMS_ERROR(40004, "请求参数异常"),
     PARAMS_NULL(40000, "请求参数为空"),
     NO_AUTH_ERROR(50005, "无权限操作"),
-    NOT_FOUND_ERROR(50006, "请求数据不存在");
+    NOT_FOUND_ERROR(50006, "请求数据不存在"),
+    CURRENT_REQUEST_MANY(50007,"当前请求人数过多，请稍后在试");
 
     /**
      * 状态码
