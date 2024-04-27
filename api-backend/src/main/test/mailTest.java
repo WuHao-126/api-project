@@ -2,10 +2,13 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
+import com.wuhao.client.ApiTemplate;
+import com.wuhao.project.MainrApplication;
 import com.wuhao.project.util.IdUtils;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import springfox.documentation.spring.web.json.Json;
@@ -18,10 +21,14 @@ import java.util.Map;
  * @Datetime: TODO
  * @Description: TODO
  */
-//@SpringBootTest(classes = MainrApplication.class)
+@SpringBootTest(classes = MainrApplication.class)
 public class mailTest {
     @Autowired
     private JavaMailSender javaMailSender;
+
+    @Autowired
+    private ApiTemplate apiTemplate;
+
     @Test
     public void mailTest(){
         SimpleMailMessage smm = new SimpleMailMessage();
@@ -31,6 +38,13 @@ public class mailTest {
         smm.setSubject("Hello Word");//邮件主题
         smm.setText(emailContent);//邮件内容
         javaMailSender.send(smm);//发送邮件
+    }
+    @Test
+    public void sdkTest(){
+        Map<String, Object> map=new HashMap<>();
+        map.put("qq","1345498749");
+        String get = apiTemplate.sendRequest("http://www.wuhao.ltd:8090/interface/qq", "GET", map);
+        System.out.println(get);
     }
 
     @Test

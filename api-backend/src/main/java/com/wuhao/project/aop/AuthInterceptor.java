@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
  *
  * @author yupi
  */
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class AuthInterceptor {
 
     @Resource

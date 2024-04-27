@@ -78,7 +78,9 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
         HttpHeaders headers = request.getHeaders();
         //3、网页测试数据直接通过
-        if(IP_TEST.contains(sourceAddress)){
+        String first = headers.getFirst("api-gateway-test");
+        String s="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";
+        if(s.equals(first)){
             return chain.filter(exchange);
         }
         //4、黑白名单
@@ -86,23 +88,21 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             handleNoAuth(response);
         }
         //5、统一的鉴权
-        //5.1、获取公钥
         String accessKey = headers.getFirst("accessKey");
         String sign = headers.getFirst("sign");
-//        todo 没有确保唯一性
         String redisSccessKey = redisTemplate.opsForValue().get("accessKey");
         if(StringUtils.isEmpty(redisSccessKey)){
             User user = userMapper.selectOne(new QueryWrapper<User>().eq("accessKey", accessKey));
             if (user==null) {
-                throw new RuntimeException("无权限");
+                handleNoAuth(response);
             }
             redisSccessKey=user.getSecretKey();
             redisTemplate.opsForValue().set("api:gateway:accessKey:"+accessKey,redisSccessKey,7,TimeUnit.DAYS);
         }
-        //进行再次加密
-//        String serverSign = SignUtils.getSign(redisSccessKey);
-        if (!sign.equals(redisSccessKey)) {
-            throw new RuntimeException("无权限");
+        //6、密钥加密后进行校验
+        String serverSign = SignUtils.getSign(redisSccessKey);
+        if (!sign.equals(serverSign)) {
+            handleNoAuth(response);
         }
         return chain.filter(exchange).then(
                 Mono.fromRunnable(() -> {

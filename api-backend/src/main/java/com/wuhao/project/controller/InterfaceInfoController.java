@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
-import com.wuhao.client.ApiClient;
 import com.wuhao.project.constant.UserConstant;
 import com.wuhao.project.mapper.CommonMapper;
 import com.wuhao.project.model.entity.InterfaceInfo;
@@ -36,8 +35,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/interface")
 public class InterfaceInfoController {
 
-    @Autowired
-    private ApiClient apiClient;
     @Autowired
     private UserService userService;
     @Autowired
@@ -175,7 +172,7 @@ public class InterfaceInfoController {
     @PostMapping("/invoke")
     public Result invokeInterface(@RequestBody InvokeInterfaceRequest invokeInterfaceRequest){
         String url = invokeInterfaceRequest.getUrl();
-        String method = invokeInterfaceRequest.getMethod();
+        String method = "GET";
         Map<String,Object> requestParamsMap=new HashMap<>();
         Map<String,String> headerParamsMap=new HashMap<>();
         List<RequestHeaderParam> requestHeaderParams = invokeInterfaceRequest.getRequestHeaderParams();
@@ -190,19 +187,21 @@ public class InterfaceInfoController {
             }
             requestParamsMap.put(fieldName,value);
         }
+        Map<String, String> map=new HashMap<>();
+        map.put("api-gateway-test","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");
         if("GET".equals(method)){
-            HttpRequest form = HttpRequest.get(url).form(requestParamsMap);
+            HttpRequest form = HttpRequest.get(url).addHeaders(map).form(requestParamsMap);
             HttpResponse execute = form.execute();
             String body = execute.body();
             return Result.success(body);
         }else if ("POST".equals(method)){
-            HttpRequest request = HttpRequest.post(url).body(JSONUtil.toJsonStr(requestParamsMap));
+            HttpRequest request = HttpRequest.post(url).addHeaders(map).body(JSONUtil.toJsonStr(requestParamsMap));
             String body = request.execute().body();
             return Result.success(body);
         }else{
             Result.error(ErrorCode.PARAMS_ERROR);
         }
-        return Result.success();
+        return Result.error(ErrorCode.OPERATION_ERROR);
     }
 
     // endregion

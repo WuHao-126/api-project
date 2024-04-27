@@ -57,6 +57,11 @@
             <artifactId>api-common</artifactId>
             <version>0.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>api-sdk</groupId>
+            <artifactId>api-sdk</artifactId>
+            <version>0.0.1</version>
+        </dependency>
 <!--        nacos注册中心-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>

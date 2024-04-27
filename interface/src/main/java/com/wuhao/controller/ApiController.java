@@ -4,8 +4,12 @@ package com.wuhao.controller;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wuhao.common.Result;
 import com.wuhao.mapper.UsernameMapper;
+import com.wuhao.mode.enmus.ErrorCode;
 import com.wuhao.model.entity.User;
 import com.wuhao.service.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/interface")
@@ -49,8 +54,22 @@ public class ApiController {
         map.put("qq",qq);
         HttpResponse response = HttpRequest.get("http://japi.juhe.cn/qqevaluate/qq").form(map).execute();
         String body = response.body();
-        HashMap<String, Object> hashMap = JSONUtil.toBean(body, HashMap.class);
-        return Result.success(hashMap);
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = null; // 解析整个JSON字符串为JsonNode
+        try {
+            rootNode = objectMapper.readTree(body);
+            JsonNode dataNode = rootNode.path("result").path("data"); // 获取result下的data字段
+            if (dataNode.isMissingNode()) {
+                System.out.println("Data field is missing or null.");
+            } else {
+                // 将JsonNode转换为字符串，或者你可以根据需要将其转换为其他类型（如Map、POJO等）
+                String dataValue = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataNode);
+                return Result.success(dataValue);
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return Result.error(ErrorCode.ILLEGAL_ACCESS);
     }
 
     @GetMapping("xing")
