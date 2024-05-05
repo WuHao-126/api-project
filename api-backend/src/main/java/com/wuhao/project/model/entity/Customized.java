@@ -1,6 +1,8 @@
 package com.wuhao.project.model.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -21,6 +23,9 @@ public class Customized {
      * 用户ID
      */
     private Long userId;
+
+    @TableField(exist = false)
+    private String userName;
     /**
      * 申请接口名称名称
      */
@@ -48,5 +53,6 @@ public class Customized {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createDate;
 }

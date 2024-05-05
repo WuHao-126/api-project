@@ -12,7 +12,7 @@ public enum ErrorCode {
     ALREADY_REGISTER(4104,"已注册"),
     ERROR_CODE(4105,"验证码错误"),
     COMMENT_NULL(4106,"评论内容不可以为空"),
-    COMMENT_ILLEGAL(4107,"评论中有铭感词,请重新输入"),
+    COMMENT_ILLEGAL(4107,"评论中有敏感词,请重新输入"),
 
 
     SYSTEM_ERROR(50000, "系统内部异常"),

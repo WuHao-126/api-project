@@ -1,6 +1,7 @@
 package com.wuhao.project.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wuhao.project.annotation.AuthCheck;
 import com.wuhao.project.common.DeleteRequest;
 import com.wuhao.project.common.ErrorCode;
 import com.wuhao.project.common.Result;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @Author: wuhao
@@ -51,6 +53,13 @@ public class CustomizedController {
         Long userId = loginUser.getId();
         Page pageList = customizedService.query().eq("userId", userId).page(page);
         return Result.success(pageList);
+    }
+
+    @PostMapping("/all")
+    @AuthCheck(anyRole = {"admin,superadmin"})
+    public Result getAllList(Page page){
+        Page<Customized> list = customizedService.getAllList(page);
+        return Result.success(list);
     }
 
     @PostMapping("/delete")

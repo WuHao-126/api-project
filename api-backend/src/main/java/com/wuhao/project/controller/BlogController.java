@@ -3,6 +3,7 @@ package com.wuhao.project.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.houbb.sensitive.word.core.SensitiveWordHelper;
+import com.wuhao.project.annotation.AuthCheck;
 import com.wuhao.project.annotation.Limiter;
 import com.wuhao.project.common.DeleteRequest;
 import com.wuhao.project.common.ErrorCode;
@@ -56,7 +57,6 @@ public class BlogController {
      * @return
      */
     @PostMapping("/page")
-    @Limiter
     public Result getBlogPage(@RequestBody BlogQueryRequest blogQueryRequest,HttpServletRequest request){
         long current = blogQueryRequest.getCurrent();
         long pageSize = blogQueryRequest.getPageSize();

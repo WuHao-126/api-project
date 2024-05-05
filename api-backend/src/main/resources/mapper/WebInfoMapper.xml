@@ -8,14 +8,14 @@
     <select id="getTimeList" resultType="com.wuhao.project.model.response.TimeoutInterfaceResponse">
           select
         tti.id as id,
-        tti.interface_id as interfaceId,
+        tti.interfaceId as interfaceId,
         ti.name as name,
         ti.url as url,
-        tti.response_time as responseTime,
-        tti.create_time as createTime
+        tti.responseTime as responseTime,
+        tti.createTime as createTime
         from
         tb_timeout_interface  tti
-        left join tb_interface_info as ti on tti.interface_id=ti.id
+        left join tb_interface_info as ti on tti.interfaceId=ti.id
     </select>
     <select id="getExceptionalList" resultType="com.wuhao.project.model.entity.ExceptionalLog">
         select

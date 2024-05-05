@@ -362,7 +362,6 @@ public class UserController {
                 .like(!StringUtils.isEmpty(userQueryRequest.getKeywords()),"phone",userQueryRequest.getKeywords())
                 .between(beginDate!=null && endDate!=null,"createTime",beginDate,endDate)
                 .eq(userQueryRequest.getUserState()!=null,"state",userQueryRequest.getUserState());
-
         Page<User> userPage = userService.page(new Page<>(current, size),queryWrapper);
         userPage.getRecords().stream().forEach(data ->{
             if(StringUtils.isEmpty(data.getAccessKey())){

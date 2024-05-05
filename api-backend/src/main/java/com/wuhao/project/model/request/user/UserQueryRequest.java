@@ -30,7 +30,7 @@ public class UserQueryRequest extends PageRequest implements Serializable {
     /**
      * 用户状态
      */
-    private Integer userState;
+    private String userState;
     /**
      * 时间范围
      */

@@ -15,4 +15,6 @@ public interface UploadService {
     String uploadFileInterface(String fileUrl,String objectName, String contentType);
 
     String uploadFileUser(String fileUrl,String objectName, String contentType);
+
+    String uploadileWeb(String fileUrl,String objectName, String contentType);
 }

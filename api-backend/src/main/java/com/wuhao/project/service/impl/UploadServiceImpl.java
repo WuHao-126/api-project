@@ -98,6 +98,27 @@ public class UploadServiceImpl implements UploadService {
             UploadObjectArgs uploadObjectArgs = UploadObjectArgs.builder()
                     .bucket(bucketName) //桶名
                     .filename(fileUrl) //本地文件路径（需要上传的文件）
+                    .object("/"+objectName) //minio 上传后要放到那个文件下
+                    .contentType(contentType) //上传文件类型
+                    .build();
+            minioClient.uploadObject(uploadObjectArgs);
+        } catch (Exception e) {
+            // 处理异常
+            e.printStackTrace();
+        }
+        return endpoint+"/"+bucketName+"/user/"+objectName;
+    }
+
+    @Override
+    public String uploadileWeb(String fileUrl, String objectName, String contentType) {
+        MinioClient minioClient = MinioClient.builder()
+                .endpoint(endpoint)
+                .credentials("minioadmin","minioadmin")
+                .build();
+        try {
+            UploadObjectArgs uploadObjectArgs = UploadObjectArgs.builder()
+                    .bucket(bucketName) //桶名
+                    .filename(fileUrl) //本地文件路径（需要上传的文件）
                     .object("user/"+objectName) //minio 上传后要放到那个文件下
                     .contentType(contentType) //上传文件类型
                     .build();

@@ -75,7 +75,6 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             httpHeaders.add("X-AuthorizationToken-Header",headerKey);
         }).build();
         exchange.mutate().request(request);
-
         HttpHeaders headers = request.getHeaders();
         //3、网页测试数据直接通过
         String first = headers.getFirst("api-gateway-test");

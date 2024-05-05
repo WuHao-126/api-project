@@ -86,4 +86,20 @@ public class UploadController {
         return Result.success(originalFilename);
     }
 
+    @PostMapping("/logo")
+    public Result UploadFileWeb(@RequestParam("file") MultipartFile file) throws IOException {
+        if(file.isEmpty()){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        //创建临时文件
+        File tempFile=File.createTempFile("minio",".temp");
+        file.transferTo(tempFile);
+        //获得文件路径
+        String absolutePath = tempFile.getAbsolutePath();
+        String contentType = file.getContentType();
+        String originalFilename = file.getOriginalFilename();
+        String s = uploadService.uploadFileUser(absolutePath, originalFilename, contentType);
+        return Result.success(originalFilename);
+    }
+
 }
