@@ -70,6 +70,11 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         log.info("请求来源地址：" + sourceAddress);
         log.info("请求来源地址：" + request.getRemoteAddress());
         ServerHttpResponse response = exchange.getResponse();
+        Integer state = timeoutInterfaceMapper.getInterfaceState(path);
+        if(state == 0){
+            handleNoAuth(response);
+            return exchange.getResponse().setComplete();
+        }
         //2、添加请求头信息
         request.mutate().headers(httpHeaders -> {
             httpHeaders.add("X-AuthorizationToken-Header",headerKey);
@@ -83,9 +88,9 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
         //4、黑白名单
-        if(!IP_WHITE_LIST.contains(sourceAddress)){
-            handleNoAuth(response);
-        }
+//        if(!IP_WHITE_LIST.contains(sourceAddress)){
+//            handleNoAuth(response);
+//        }
         //5、统一的鉴权
         String accessKey = headers.getFirst("accessKey");
         String sign = headers.getFirst("sign");
@@ -100,7 +105,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         }
         //6、密钥加密后进行校验
         String serverSign = SignUtils.getSign(redisSccessKey);
-        if (!sign.equals(serverSign)) {
+        if (!sign.equals(redisSccessKey)) {
             handleNoAuth(response);
         }
         return chain.filter(exchange).then(

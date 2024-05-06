@@ -38,8 +38,6 @@ public interface WebInfoMapper extends BaseMapper {
     @Select("select count(1) from tb_user")
     Integer getInterfaceTotal();
 
-    Page<TimeoutInterfaceResponse> getTimeList(Page page);
-
 
     Page<ExceptionalLog> getExceptionalList(Page page);
 

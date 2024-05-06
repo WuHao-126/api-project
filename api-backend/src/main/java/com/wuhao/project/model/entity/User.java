@@ -79,7 +79,7 @@ public class User implements Serializable {
     private Date updateTime;
 
     /**
-     * 用户状态
+     * 用户状态(0-正常 1-封号 2-注销)
      */
     private Integer state;
 

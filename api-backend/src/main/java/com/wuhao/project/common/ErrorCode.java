@@ -8,6 +8,8 @@ public enum ErrorCode {
     USER_PASSWORD_NULL(40002,"密码为空"),
     NOT_LOGIN_ERROR(40100, "未登录"),
     USER_STATUS_ERROR(40102,"账号状态异常"),
+    USER_STATUS_ONE(40103,"此账号已被封禁"),
+    USER_STATUS_TWO(40104,"此账号已被注销"),
     USER_REGISTER_ERROR(4103,"注册失败"),
     ALREADY_REGISTER(4104,"已注册"),
     ERROR_CODE(4105,"验证码错误"),

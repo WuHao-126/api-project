@@ -36,6 +36,8 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static com.wuhao.project.constant.UserConstant.USER_LOGIN_STATE;
+
 @RestController
 @RequestMapping("/user")
 @Api(value = "用户信息操作接口", tags = "用户信息操作接口")
@@ -106,12 +108,18 @@ public class UserController {
         if(StringUtils.isEmpty(userPassword)){
             return Result.error(ErrorCode.USER_PASSWORD_NULL);
         }
-
-        LoginUserResponse loginUserResponse = userService.userLogin(userAccount, userPassword,email,servletRequest);
-        if(loginUserResponse ==null){
+        User user = userService.userLogin(userAccount, userPassword, email);
+        if(user ==null){
             return Result.error(603,"账号或密码错误");
         }
-        return Result.success(loginUserResponse.getId().toString());
+        Integer state = user.getState();
+        if (state == 1){
+            return Result.error(ErrorCode.USER_STATUS_ONE);
+        }else if(state == 2){
+            return Result.error(ErrorCode.USER_STATUS_TWO);
+        }
+        servletRequest.getSession().setAttribute(USER_LOGIN_STATE,user);
+        return Result.success(user.getId().toString());
     }
 
     @PostMapping("/admin/login")
@@ -361,7 +369,7 @@ public class UserController {
                 .or()
                 .like(!StringUtils.isEmpty(userQueryRequest.getKeywords()),"phone",userQueryRequest.getKeywords())
                 .between(beginDate!=null && endDate!=null,"createTime",beginDate,endDate)
-                .eq(userQueryRequest.getUserState()!=null,"state",userQueryRequest.getUserState());
+                .eq(!StringUtils.isEmpty(userQueryRequest.getUserState()),"state",userQueryRequest.getUserState());
         Page<User> userPage = userService.page(new Page<>(current, size),queryWrapper);
         userPage.getRecords().stream().forEach(data ->{
             if(StringUtils.isEmpty(data.getAccessKey())){

@@ -24,10 +24,9 @@ public interface UserService extends IService<User> {
      * 用户登录
      * @param userAccount
      * @param userPassword
-     * @param servletRequest
      * @return
      */
-    LoginUserResponse userLogin(String userAccount, String userPassword,String email, HttpServletRequest servletRequest);
+    User userLogin(String userAccount, String userPassword,String email);
 
 
     /**
@@ -63,12 +62,7 @@ public interface UserService extends IService<User> {
 
     Boolean isAdmin(HttpServletRequest servletRequest);
 
-    /**
-     * 获取脱敏的已登录用户信息
-     *
-     * @return
-     */
-    LoginUserResponse getLoginUserVO(User user);
+
 
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 

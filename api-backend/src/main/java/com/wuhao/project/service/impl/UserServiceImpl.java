@@ -15,6 +15,7 @@ import com.wuhao.project.model.request.user.UserQueryRequest;
 import com.wuhao.project.service.UserService;
 import com.wuhao.project.util.IdUtils;
 import com.wuhao.project.util.RegexUtils;
+import com.wuhao.project.util.UserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -132,7 +133,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public LoginUserResponse userLogin(String userAccount, String userPassword,String email,HttpServletRequest servletRequest) {
+    public User userLogin(String userAccount, String userPassword,String email) {
         if(StringUtils.isAllEmpty(userAccount,email)){
             throw new BusinessException(ErrorCode.PARAMS_NULL,"参数为空");
         }
@@ -153,13 +154,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     .eq("email", email)
                     .eq("userPassword", md5Password).one();
         }
-        if(loginUser==null){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
-        }
-        LoginUserResponse LoginUserResponse = getLoginUserVO(loginUser);
-        //记录登录态
-        servletRequest.getSession().setAttribute(USER_LOGIN_STATE,loginUser);
-        return LoginUserResponse;
+        return loginUser;
     }
 
     @Override
@@ -231,15 +226,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
 
-    @Override
-    public LoginUserResponse getLoginUserVO(User user) {
-        if (user == null) {
-            return null;
-        }
-        LoginUserResponse loginUserResponse = new LoginUserResponse();
-        BeanUtils.copyProperties(user, loginUserResponse);
-        return loginUserResponse;
-    }
+
 
     @Override
     public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {

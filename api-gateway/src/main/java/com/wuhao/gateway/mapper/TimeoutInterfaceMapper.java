@@ -18,4 +18,7 @@ public interface TimeoutInterfaceMapper extends BaseMapper<TimeoutInterface> {
 
     @Update("update `tb_interface_info` set useTotal=useTotal+1 where id=#{id}")
     void updateInterfaceTotal(Long id);
+
+    @Select("select state from tb_interface_info where url=#{url}")
+    Integer getInterfaceState(String url);
 }

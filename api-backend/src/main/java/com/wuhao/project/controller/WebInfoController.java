@@ -29,7 +29,6 @@ public class WebInfoController {
     private WebInfoMapper webInfoMapper;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-
     /**
      * 获取服务器信息
      * @return
@@ -64,11 +63,6 @@ public class WebInfoController {
         return Result.success();
     }
 
-    @GetMapping("/timeout")
-    public Result getTimeoutInterface(Page page){
-        Page<TimeoutInterfaceResponse> page1 = webInfoMapper.getTimeList(page);
-        return Result.success(page1);
-    }
 
     @GetMapping("/exceptional")
     public Result getExceptionalList(Page page){

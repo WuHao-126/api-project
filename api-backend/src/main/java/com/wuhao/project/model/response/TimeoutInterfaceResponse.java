@@ -1,5 +1,6 @@
 package com.wuhao.project.model.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ public class TimeoutInterfaceResponse {
     /**
      * id
      */
-    private Integer id;
+    private Long id;
     /**
      * 接口id
      */
@@ -34,5 +35,6 @@ public class TimeoutInterfaceResponse {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
 }

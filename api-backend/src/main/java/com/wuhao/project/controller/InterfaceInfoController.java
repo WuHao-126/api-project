@@ -19,6 +19,7 @@ import com.wuhao.project.exception.BusinessException;
 import com.wuhao.project.exception.ThrowUtils;
 import com.wuhao.project.model.enmus.InterfaceInfoStatusEnum;
 import com.wuhao.project.model.request.interfaces.*;
+import com.wuhao.project.model.response.TimeoutInterfaceResponse;
 import com.wuhao.project.service.InterfaceInfoService;
 import com.wuhao.project.service.UserService;
 import org.apache.commons.lang3.ObjectUtils;
@@ -172,6 +173,12 @@ public class InterfaceInfoController {
 
     @PostMapping("/invoke")
     public Result invokeInterface(@RequestBody InvokeInterfaceRequest invokeInterfaceRequest){
+        Long id = invokeInterfaceRequest.getId();
+        InterfaceInfo interfaceInfo = interfaceInfoService.getById(id);
+        Integer state = interfaceInfo.getState();
+        if(state==0){
+            return Result.error(404,"此接口已经关闭，请联系管理员");
+        }
         String url = invokeInterfaceRequest.getUrl();
         String method = "GET";
         Map<String,Object> requestParamsMap=new HashMap<>();
@@ -277,5 +284,20 @@ public class InterfaceInfoController {
     @GetMapping("/tag")
     public Result getInterfaceTags(){
         return Result.success(commonMapper.getBlogTag("INTERFACE"));
+    }
+
+
+    @GetMapping("/timeout")
+    @AuthCheck(anyRole = {"admin","superadmin"})
+    public Result getTimeoutInterface(Page page){
+        Page<TimeoutInterfaceResponse> page1 = interfaceInfoService.getTimeoutList(page);
+        return Result.success(page1);
+    }
+
+    @GetMapping("/timeout/delete")
+    @AuthCheck(anyRole = {"admin","superadmin"})
+    public Result deleteTimeoutData(Long id){
+        interfaceInfoService.deleteTimeoutData(id);
+        return Result.success();
     }
 }
