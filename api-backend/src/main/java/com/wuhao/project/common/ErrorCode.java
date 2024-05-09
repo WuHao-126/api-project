@@ -15,6 +15,7 @@ public enum ErrorCode {
     ERROR_CODE(4105,"验证码错误"),
     COMMENT_NULL(4106,"评论内容不可以为空"),
     COMMENT_ILLEGAL(4107,"评论中有敏感词,请重新输入"),
+    NOTICE_NULL(4108,"暂无公告"),
 
 
     SYSTEM_ERROR(50000, "系统内部异常"),

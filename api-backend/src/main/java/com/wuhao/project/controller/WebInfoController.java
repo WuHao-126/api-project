@@ -1,6 +1,7 @@
 package com.wuhao.project.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wuhao.project.annotation.AuthCheck;
 import com.wuhao.project.common.ErrorCode;
 import com.wuhao.project.common.Result;
 import com.wuhao.project.mapper.WebInfoMapper;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author: wuhao
@@ -53,17 +55,32 @@ public class WebInfoController {
      * @param webInfo
      * @return
      */
-    @PostMapping("/notice")
+    @PostMapping("/notice/save")
     public Result saveNotice(@RequestBody  WebInfo webInfo){
         String notice = webInfo.getNotice();
+        Integer day = webInfo.getDay();
         if(StringUtils.isEmpty(notice)){
             return Result.error(ErrorCode.PARAMS_ERROR);
         }
-        stringRedisTemplate.opsForValue().set("api:web:notice",notice);
+        if(day==null){
+            return Result.error(100,"发布时间最少为一天");
+        }
+        stringRedisTemplate.opsForValue().set("api:web:notice",notice,day, TimeUnit.DAYS);
         return Result.success();
     }
-
-
+    @GetMapping("/notice/delete")
+    public Result deleteNotice(){
+        stringRedisTemplate.delete("api:web:notice");
+        return Result.success();
+    }
+    @GetMapping("/notice")
+    public Result getNotice(){
+        String s = stringRedisTemplate.opsForValue().get("api:web:notice");
+        if(StringUtils.isEmpty(s)){
+            return Result.error(ErrorCode.NOTICE_NULL);
+        }
+        return Result.success(s);
+    }
     @GetMapping("/exceptional")
     public Result getExceptionalList(Page page){
         Page<ExceptionalLog> page1=webInfoMapper.getExceptionalList(page);
@@ -74,5 +91,28 @@ public class WebInfoController {
     public Result getTagsList(Page page){
         Page<Tag> page1=webInfoMapper.getAllTags(page);
         return Result.success(page1);
+    }
+
+    @GetMapping("/tag/delete")
+    @AuthCheck(anyRole = {"admin,superadmin"})
+    public Result deleteTag(Long id){
+        webInfoMapper.deleteTag(id);
+        return Result.success();
+    }
+
+    /**
+     * 添加标签
+     * @return
+     */
+    @PostMapping("/tag/add")
+    public Result addTag(@RequestBody Tag tag){
+        webInfoMapper.addTag(tag);
+        return Result.success();
+    }
+
+    @PostMapping("/tag/update")
+    public Result updateTag(@RequestBody Tag tag){
+        webInfoMapper.updateTag(tag);
+        return Result.success();
     }
 }

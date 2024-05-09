@@ -6,10 +6,7 @@ import com.wuhao.project.model.entity.ExceptionalLog;
 import com.wuhao.project.model.entity.Tag;
 import com.wuhao.project.model.entity.WebInfo;
 import com.wuhao.project.model.response.TimeoutInterfaceResponse;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -43,4 +40,13 @@ public interface WebInfoMapper extends BaseMapper {
 
     @Select("select * from sys_tag")
     Page<Tag> getAllTags(Page page);
+
+    @Delete("delete from sys_tag where id=#{id}")
+    void deleteTag(Long id);
+
+    @Insert("insert into sys_tag values(null,#{tag.name},#{tag.type},null,#{tag.other})")
+    void addTag(@Param("tag") Tag tag);
+
+    @Update("update sys_tag set name=#{tag.name},type=#{tag.type},other=#{tag.other} where id=#{tag.id}")
+    void updateTag(@Param("tag") Tag tag);
 }

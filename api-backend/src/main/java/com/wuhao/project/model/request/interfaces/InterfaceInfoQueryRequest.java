@@ -18,6 +18,10 @@ public class InterfaceInfoQueryRequest extends PageRequest implements Serializab
 
 
     /**
+     * 请求路径
+     */
+    private String url;
+    /**
      * 关键词
      */
     private String keywords;
@@ -43,6 +47,7 @@ public class InterfaceInfoQueryRequest extends PageRequest implements Serializab
      * 时间范围
      */
     private Date beginDate;
+
     private Date endDate;
 
 }

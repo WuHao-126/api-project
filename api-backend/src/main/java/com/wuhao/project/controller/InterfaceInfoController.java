@@ -146,13 +146,16 @@ public class InterfaceInfoController {
         Date endDate = request.getEndDate();
         String name = request.getName();
         Integer type = request.getType();
+        Integer state = request.getState();
+        String url = request.getUrl();
         // 限制爬虫
         if (size > 50) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         QueryWrapper<InterfaceInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(StringUtils.isNotBlank(request.getMethod()),"method",request.getMethod())
-                    .eq(request.getState()!=null,"state",request.getState())
+                    .eq(state!=null,"state",request.getState())
+                    .eq(!StringUtils.isBlank(url),"url",url)
                     .like(StringUtils.isNotBlank(keywords),"name",keywords)
                     .or()
                     .like(StringUtils.isNotBlank(keywords),"description",keywords)

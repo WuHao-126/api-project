@@ -102,9 +102,6 @@ public class UserController {
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         String email = userLoginRequest.getEmail();
-        if(StringUtils.isEmpty(userAccount)){
-            return Result.error(ErrorCode.USER_ACCOUNT_NULL);
-        }
         if(StringUtils.isEmpty(userPassword)){
             return Result.error(ErrorCode.USER_PASSWORD_NULL);
         }
@@ -361,6 +358,7 @@ public class UserController {
         Date endDate = userQueryRequest.getEndDate();
         QueryWrapper<User> queryWrapper=new QueryWrapper<>();
         queryWrapper.eq(!StringUtils.isBlank(userQueryRequest.getUserRole()),"userRole",userQueryRequest.getUserRole())
+                .eq(!StringUtils.isEmpty(userQueryRequest.getUserState()),"state",userQueryRequest.getUserState())
                 .like(!StringUtils.isBlank(userQueryRequest.getKeywords()),"userName",userQueryRequest.getKeywords())
                 .or()
                 .like(!StringUtils.isBlank(userQueryRequest.getKeywords()),"userAccount",userQueryRequest.getKeywords())
@@ -368,8 +366,7 @@ public class UserController {
                 .like(!StringUtils.isEmpty(userQueryRequest.getKeywords()),"email",userQueryRequest.getKeywords())
                 .or()
                 .like(!StringUtils.isEmpty(userQueryRequest.getKeywords()),"phone",userQueryRequest.getKeywords())
-                .between(beginDate!=null && endDate!=null,"createTime",beginDate,endDate)
-                .eq(!StringUtils.isEmpty(userQueryRequest.getUserState()),"state",userQueryRequest.getUserState());
+                .between(beginDate!=null && endDate!=null,"createTime",beginDate,endDate);
         Page<User> userPage = userService.page(new Page<>(current, size),queryWrapper);
         userPage.getRecords().stream().forEach(data ->{
             if(StringUtils.isEmpty(data.getAccessKey())){

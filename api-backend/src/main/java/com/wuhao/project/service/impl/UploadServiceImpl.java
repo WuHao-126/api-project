@@ -98,7 +98,7 @@ public class UploadServiceImpl implements UploadService {
             UploadObjectArgs uploadObjectArgs = UploadObjectArgs.builder()
                     .bucket(bucketName) //桶名
                     .filename(fileUrl) //本地文件路径（需要上传的文件）
-                    .object("/"+objectName) //minio 上传后要放到那个文件下
+                    .object("user/"+objectName) //minio 上传后要放到那个文件下
                     .contentType(contentType) //上传文件类型
                     .build();
             minioClient.uploadObject(uploadObjectArgs);

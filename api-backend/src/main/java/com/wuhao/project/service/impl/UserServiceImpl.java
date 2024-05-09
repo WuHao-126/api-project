@@ -98,7 +98,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 user.setUserName(userName);
                 user.setId(IdUtils.getId());
                 user.setUserPassword(encryptPassword);
-                user.setUserAvatar("default.jpg");
+                if(StringUtils.isEmpty(user.getUserAvatar())){
+                    user.setUserAvatar("default.jpg");
+                }
                 this.save(user);
                 return user.getId();
             }else if(!StringUtils.isEmpty(email)){

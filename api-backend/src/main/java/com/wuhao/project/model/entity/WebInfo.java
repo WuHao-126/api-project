@@ -44,6 +44,8 @@ public class WebInfo {
     /**
      * 时间,天数
      */
+    @TableField(exist = false)
+    private Integer day;
 
 
 }
