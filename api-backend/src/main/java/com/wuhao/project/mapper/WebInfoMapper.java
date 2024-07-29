@@ -49,4 +49,7 @@ public interface WebInfoMapper extends BaseMapper {
 
     @Update("update sys_tag set name=#{tag.name},type=#{tag.type},other=#{tag.other} where id=#{tag.id}")
     void updateTag(@Param("tag") Tag tag);
+
+    @Select("select * from sys_tag where id=#{id}")
+    Tag getTagById(long id);
 }

@@ -37,9 +37,11 @@ public final class ApiTemplate {
     public String sendRequest(String url,String method){
        return getResponse(url,method,null,null);
     }
+
     public String sendRequest(String url,String method,Map<String,Object> paramMap){
         return getResponse(url,method,paramMap,null);
     }
+
     public String sendRequest(String url,String method,Map<String,Object> paramMap,Map<String,String> headerMap){
         return getResponse(url,method,paramMap,headerMap);
     }

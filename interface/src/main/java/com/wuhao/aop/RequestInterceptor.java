@@ -20,8 +20,8 @@ import java.util.UUID;
  * @Datetime: TODO
  * @Description: TODO
  */
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class RequestInterceptor {
     private static final String headerKey="API-GATEWAY";
     /**

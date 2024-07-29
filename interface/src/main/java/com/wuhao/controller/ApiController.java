@@ -35,11 +35,11 @@ public class ApiController {
      * @return
      */
     @GetMapping("/randomname")
-    public User userName(String name){
+    public String userName(String name){
         User user=new User();
         user.setAge("18");
         user.setName(name);
-        return user;
+        return "111";
     }
     @PostMapping("/user")
     public User useraaa(@RequestBody User user){

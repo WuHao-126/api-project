@@ -29,9 +29,14 @@ public class InterfaceInfo implements Serializable {
      */
     private String description;
     /**
-     * 接口类型
+     * 接口类型编号
      */
     private Integer type;
+    /**
+     * 接口类型名称
+     */
+    @TableField(exist = false)
+    private String typeName;
     /**
      * 接口封面
      */

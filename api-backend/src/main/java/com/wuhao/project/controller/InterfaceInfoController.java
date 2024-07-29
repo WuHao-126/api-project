@@ -10,7 +10,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
 import com.wuhao.project.constant.UserConstant;
 import com.wuhao.project.mapper.CommonMapper;
+import com.wuhao.project.mapper.WebInfoMapper;
 import com.wuhao.project.model.entity.InterfaceInfo;
+import com.wuhao.project.model.entity.Tag;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.annotation.AuthCheck;
 import com.wuhao.project.common.*;
@@ -43,6 +45,9 @@ public class InterfaceInfoController {
 
     @Autowired
     private CommonMapper commonMapper;
+
+    @Autowired
+    private WebInfoMapper webInfoMapper;
 
     @PostMapping("/add")
     @AuthCheck(anyRole = {UserConstant.SUPER_ADMIN_ROLE,UserConstant.ADMIN_ROLE})
@@ -127,6 +132,8 @@ public class InterfaceInfoController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         InterfaceInfo interfaceInfo = interfaceInfoService.getById(id);
+        Tag tag=webInfoMapper.getTagById(interfaceInfo.getType());
+        interfaceInfo.setTypeName(tag.getName());
         return Result.success(interfaceInfo);
     }
 
@@ -156,20 +163,22 @@ public class InterfaceInfoController {
         queryWrapper.eq(StringUtils.isNotBlank(request.getMethod()),"method",request.getMethod())
                     .eq(state!=null,"state",request.getState())
                     .eq(!StringUtils.isBlank(url),"url",url)
+                    .eq(type!=null,"type",type)
+                    .between(beginDate!=null && endDate!=null,"createTime",beginDate,endDate)
                     .like(StringUtils.isNotBlank(keywords),"name",keywords)
                     .or()
                     .like(StringUtils.isNotBlank(keywords),"description",keywords)
                     .or()
                     .like(StringUtils.isNotBlank(keywords),"url",keywords)
-                    .like(StringUtils.isNotBlank(name),"name",name)
-                    .eq(type!=null,"type",type)
-                    .between(beginDate!=null && endDate!=null,"createTime",beginDate,endDate);
+                    .like(StringUtils.isNotBlank(name),"name",name);
         //查询出用户信息
         Page<InterfaceInfo> interfaceInfoPage = interfaceInfoService.page(new Page<>(current, size), queryWrapper);
         Map<Long, String> collect = userService.list().stream().collect(Collectors.toMap(User::getId, User::getUserName));
+        Map<Integer, String> tagList = webInfoMapper.getAllTags(new Page(1, 100)).getRecords().stream().collect(Collectors.toMap(Tag::getId, Tag::getName));
         interfaceInfoPage.getRecords().stream().forEach(data ->{
             Long createBy = data.getCreateBy();
             data.setCreateByName(collect.get(createBy));
+            data.setTypeName(tagList.get(data.getType()));
         });
         return Result.success(interfaceInfoPage);
     }

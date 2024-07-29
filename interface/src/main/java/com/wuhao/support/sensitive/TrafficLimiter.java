@@ -6,5 +6,5 @@ package com.wuhao.support.sensitive;
  * @Description: TODO
  */
 public interface TrafficLimiter {
-    Boolean limit();
+    Boolean allowRequest(String key);
 }

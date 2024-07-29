@@ -8,6 +8,11 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 @Configuration
 @MapperScan("com.wuhao.project.mapper")
 public class MybatisPlusConfig
@@ -20,4 +25,5 @@ public class MybatisPlusConfig
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor());
         return interceptor;
     }
+
 }

@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.conditions.update.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wuhao.project.common.IdRequest;
 import com.wuhao.project.constant.CommonConstant;
+import com.wuhao.project.model.entity.Blog;
 import com.wuhao.project.model.request.user.*;
 import com.wuhao.project.model.response.LoginUserResponse;
 import com.wuhao.project.model.entity.User;
@@ -325,17 +326,22 @@ public class UserController {
         //查看是否是本人操作 或者是超级管理操作
         if(id.equals(id1) || userRole.equals("superadmin")){
             User userAccount = userService.getOne(new QueryWrapper<User>().eq("userAccount", userUpdateMyRequest.getUserAccount()));
+            if(!StringUtils.isEmpty(userUpdateMyRequest.getUserPassword())){
+                userUpdateMyRequest.setUserPassword(DigestUtils
+                        .md5DigestAsHex(("wuhao"+userUpdateMyRequest.getUserPassword()).getBytes()));
+            }
+            // TODO 有问题  会修改博客创建时间，成为最新的博客
             BeanUtils.copyProperties(userUpdateMyRequest, userAccount);
             //修改用户表的信息
             boolean result = userService.updateById(userAccount);
             //修改博客里面的信息
-            blogService.update().set("authorName",userUpdateMyRequest.getUserName())
-                    .set("authorAvatar",userUpdateMyRequest.getUserAvatar())
-                    .eq("authorId",id);
+            blogService.update().set("authorName", userUpdateMyRequest.getUserName())
+                    .set("authorAvatar", userUpdateMyRequest.getUserAvatar())
+                    .eq("authorId", id).update();
             //修改评论里面的信息
             commentService.update().set("userName",userUpdateMyRequest.getUserName())
                     .set("userAvatar",userUpdateMyRequest.getUserAvatar())
-                    .eq("userId",id);
+                    .eq("userId",id).update();
             ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
             return Result.success(true);
         }
@@ -359,6 +365,7 @@ public class UserController {
         QueryWrapper<User> queryWrapper=new QueryWrapper<>();
         queryWrapper.eq(!StringUtils.isBlank(userQueryRequest.getUserRole()),"userRole",userQueryRequest.getUserRole())
                 .eq(!StringUtils.isEmpty(userQueryRequest.getUserState()),"state",userQueryRequest.getUserState())
+                .between(beginDate!=null && endDate!=null,"createTime",beginDate,endDate)
                 .like(!StringUtils.isBlank(userQueryRequest.getKeywords()),"userName",userQueryRequest.getKeywords())
                 .or()
                 .like(!StringUtils.isBlank(userQueryRequest.getKeywords()),"userAccount",userQueryRequest.getKeywords())
@@ -366,7 +373,7 @@ public class UserController {
                 .like(!StringUtils.isEmpty(userQueryRequest.getKeywords()),"email",userQueryRequest.getKeywords())
                 .or()
                 .like(!StringUtils.isEmpty(userQueryRequest.getKeywords()),"phone",userQueryRequest.getKeywords())
-                .between(beginDate!=null && endDate!=null,"createTime",beginDate,endDate);
+                .orderByAsc("createTime");
         Page<User> userPage = userService.page(new Page<>(current, size),queryWrapper);
         userPage.getRecords().stream().forEach(data ->{
             if(StringUtils.isEmpty(data.getAccessKey())){

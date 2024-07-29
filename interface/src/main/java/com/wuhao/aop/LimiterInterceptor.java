@@ -10,7 +10,11 @@ import com.wuhao.support.sensitive.algorithm.SlidingTimeWindowLimiter;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
 
 
 /**
@@ -21,11 +25,16 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class LimiterInterceptor {
-    private TrafficLimiter trafficLimiter = new SlidingTimeWindowLimiter();
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private TrafficLimiter trafficLimiter;
 
     @Around("execution(* com.wuhao.controller.*.*(..))")
     public Object doInterceptor(ProceedingJoinPoint joinPoint) throws Throwable {
-        if(trafficLimiter.limit()){
+        String name = joinPoint.getSignature().getName();
+        if(!trafficLimiter.allowRequest(name)){
             return Result.error(ErrorCode.CURRENT_REQUEST_MANY);
         }
         return joinPoint.proceed();

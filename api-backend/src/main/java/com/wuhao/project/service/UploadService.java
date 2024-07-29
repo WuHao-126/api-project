@@ -8,13 +8,7 @@ import java.io.InputStream;
  * @Description: TODO
  */
 public interface UploadService {
-    String uploadFileBlog(String fileUrl,String objectName, String contentType);
 
-    String uploadFileMarkdown(String fileUrl,String objectName, String contentType);
+    String uploadImage(String absolutePath, String originalFilename, String contentType, String type);
 
-    String uploadFileInterface(String fileUrl,String objectName, String contentType);
-
-    String uploadFileUser(String fileUrl,String objectName, String contentType);
-
-    String uploadileWeb(String fileUrl,String objectName, String contentType);
 }

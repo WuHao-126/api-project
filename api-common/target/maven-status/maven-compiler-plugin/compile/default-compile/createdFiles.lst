@@ -1,8 +1,1 @@
-com\wuhao\common\service\InnerUserInterfaceInfoService.class
-com\wuhao\common\Vo\LoginUserVO.class
-com\wuhao\common\service\InnerUserService.class
-com\wuhao\common\service\InnerInterfaceInfoService.class
-com\wuhao\common\entity\User.class
-com\wuhao\common\entity\InterfaceInfo.class
-com\wuhao\common\entity\UserInterfaceInfo.class
 com\wuhao\common\enums\InterfaceInfoStatusEnum.class

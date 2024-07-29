@@ -5,9 +5,13 @@ spring:
     name: api-interface
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://182.92.7.24:3306/api?serverTimezone=Asia/Shanghai
-    username: root
+    url: jdbc:mysql://localhost:3306/api?serverTimezone=Asia/Shanghai
+    username: 1345498749
     password: 1345498749...
+  redis:
+    password: 12345678
+    host: localhost
+    port: 6379
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
@@ -22,3 +26,11 @@ api:
   client:
     access-key:f677d5c71670f1ceede36ed27933487d
     secret-key:80120b98c47a6f2c006e41c691467bac
+dynamic:
+  thread:
+    pool:
+      config:
+        enabled: true
+        host: localhost
+        port: 6379
+        password: 12345678

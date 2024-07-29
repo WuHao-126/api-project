@@ -71,4 +71,9 @@ public class CustomizedController {
         customizedService.removeById(id);
         return Result.success();
     }
+    @PostMapping("/update")
+    public Result updateState(@RequestBody Customized customized){
+        boolean b = customizedService.updateById(customized);
+        return Result.success();
+    }
 }

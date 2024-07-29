@@ -1,17 +1,17 @@
-spring:
-  application:
-    name: apigateway
-  profiles:
-    active: dev
-  cloud:
-    nacos:
-      server-addr: 182.92.7.24:8848
-      discovery:
-        namespace: dev
-        group: api-backend
-      config:
-        file-extension: yaml
-        namespace: dev
-        group: api-backend
-ip:
-  interface: http://182.92.7.24:8090
+#spring:
+#  application:
+#    name: apigateway
+#  profiles:
+#    active: dev
+#  cloud:
+#    nacos:
+#      server-addr: 182.92.7.24:8848
+#      discovery:
+#        namespace: dev
+#        group: api-backend
+#      config:
+#        file-extension: yaml
+#        namespace: dev
+#        group: api-backend
+#ip:
+#  interface: http://182.92.7.24:8090

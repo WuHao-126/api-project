@@ -9,8 +9,10 @@ import lombok.Data;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Scheduled;
 import springfox.documentation.spring.web.json.Json;
 
 import java.util.HashMap;
@@ -21,13 +23,24 @@ import java.util.Map;
  * @Datetime: TODO
  * @Description: TODO
  */
-@SpringBootTest(classes = MainrApplication.class)
+//@SpringBootTest(classes = MainrApplication.class)
 public class mailTest {
     @Autowired
     private JavaMailSender javaMailSender;
 
     @Autowired
     private ApiTemplate apiTemplate;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Test
+    public void RedisTest(){
+        Map<String, String> map=new HashMap<>();
+        map.put("666","666");
+        map.put("777","777");
+        stringRedisTemplate.opsForStream().add("www",map);
+    }
 
     @Test
     public void mailTest(){
@@ -42,8 +55,8 @@ public class mailTest {
     @Test
     public void sdkTest(){
         Map<String, Object> map=new HashMap<>();
-        map.put("qq","1345498749");
-        String get = apiTemplate.sendRequest("http://www.wuhao.ltd:8090/interface/qq", "GET", map);
+        map.put("xing","吴");
+        String get = apiTemplate.sendRequest("http://101.126.87.57:8090/interface/xing", "GET", map);
         System.out.println(get);
     }
 

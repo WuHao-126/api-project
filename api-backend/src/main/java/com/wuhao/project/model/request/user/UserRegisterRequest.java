@@ -37,5 +37,5 @@ public class UserRegisterRequest implements Serializable {
     /**
      * 权限
      */
-    private String role;
+    private String userRole;
 }

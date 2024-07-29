@@ -50,7 +50,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     //黑白名单集合
     private static final List<String> IP_WHITE_LIST= Arrays.asList("127.0.0.1");
     //完整路径
-    private static final String INTERFACE_HOST = "http://www.wuhao.ltd:8090";
+    private static final String INTERFACE_HOST = "http://101.126.87.57:8090";
     //测试名单
     private static final List<String> IP_TEST=Arrays.asList("0:0:0:0:0:0:0:1","127.0.0.1");
     //请求头添加
@@ -105,8 +105,9 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         }
         //6、密钥加密后进行校验
         String serverSign = SignUtils.getSign(redisSccessKey);
-        if (!sign.equals(redisSccessKey)) {
+        if (!sign.equals(serverSign)) {
             handleNoAuth(response);
+            return exchange.getResponse().setComplete();
         }
         return chain.filter(exchange).then(
                 Mono.fromRunnable(() -> {

@@ -29,7 +29,7 @@ public class UploadServiceImpl implements UploadService {
     private String bucketName="api"; // 存储桶名称
 
     @Override
-    public String uploadFileBlog(String fileUrl,String objectName,String contentType) {
+    public String uploadImage(String absolutePath, String originalFilename, String contentType, String type) {
         MinioClient minioClient = MinioClient.builder()
                 .endpoint(endpoint)
                 .credentials("minioadmin","minioadmin")
@@ -37,8 +37,8 @@ public class UploadServiceImpl implements UploadService {
         try {
             UploadObjectArgs uploadObjectArgs = UploadObjectArgs.builder()
                     .bucket(bucketName) //桶名
-                    .filename(fileUrl) //本地文件路径（需要上传的文件）
-                    .object("blog/"+objectName) //minio 上传后要放到那个文件下
+                    .filename(absolutePath) //本地文件路径（需要上传的文件）
+                    .object(type+"/"+originalFilename) //minio 上传后要放到那个文件下
                     .contentType(contentType) //上传文件类型
                     .build();
             minioClient.uploadObject(uploadObjectArgs);
@@ -46,88 +46,7 @@ public class UploadServiceImpl implements UploadService {
             // 处理异常
             e.printStackTrace();
         }
-        return endpoint+"/"+bucketName+"/blog/"+objectName;
-    }
-    @Override
-    public String uploadFileMarkdown(String fileUrl,String objectName,String contentType) {
-        MinioClient minioClient = MinioClient.builder()
-                .endpoint(endpoint)
-                .credentials("minioadmin","minioadmin")
-                .build();
-        try {
-            UploadObjectArgs uploadObjectArgs = UploadObjectArgs.builder()
-                    .bucket(bucketName) //桶名
-                    .filename(fileUrl) //本地文件路径（需要上传的文件）
-                    .object("markdown/"+objectName) //minio 上传后要放到那个文件下
-                    .contentType(contentType) //上传文件类型
-                    .build();
-            minioClient.uploadObject(uploadObjectArgs);
-        } catch (Exception e) {
-            // 处理异常
-            e.printStackTrace();
-        }
-        return endpoint+"/"+bucketName+"/markdown/"+objectName;
-    }
-    @Override
-    public String uploadFileInterface(String fileUrl,String objectName,String contentType) {
-        MinioClient minioClient = MinioClient.builder()
-                .endpoint(endpoint)
-                .credentials("minioadmin","minioadmin")
-                .build();
-        try {
-            UploadObjectArgs uploadObjectArgs = UploadObjectArgs.builder()
-                    .bucket(bucketName) //桶名
-                    .filename(fileUrl) //本地文件路径（需要上传的文件）
-                    .object("interface/"+objectName) //minio 上传后要放到那个文件下
-                    .contentType(contentType) //上传文件类型
-                    .build();
-            minioClient.uploadObject(uploadObjectArgs);
-        } catch (Exception e) {
-            // 处理异常
-            e.printStackTrace();
-        }
-        return endpoint+"/"+bucketName+"/interface/"+objectName;
-    }
-    @Override
-    public String uploadFileUser(String fileUrl,String objectName,String contentType) {
-        MinioClient minioClient = MinioClient.builder()
-                .endpoint(endpoint)
-                .credentials("minioadmin","minioadmin")
-                .build();
-        try {
-            UploadObjectArgs uploadObjectArgs = UploadObjectArgs.builder()
-                    .bucket(bucketName) //桶名
-                    .filename(fileUrl) //本地文件路径（需要上传的文件）
-                    .object("user/"+objectName) //minio 上传后要放到那个文件下
-                    .contentType(contentType) //上传文件类型
-                    .build();
-            minioClient.uploadObject(uploadObjectArgs);
-        } catch (Exception e) {
-            // 处理异常
-            e.printStackTrace();
-        }
-        return endpoint+"/"+bucketName+"/user/"+objectName;
-    }
-
-    @Override
-    public String uploadileWeb(String fileUrl, String objectName, String contentType) {
-        MinioClient minioClient = MinioClient.builder()
-                .endpoint(endpoint)
-                .credentials("minioadmin","minioadmin")
-                .build();
-        try {
-            UploadObjectArgs uploadObjectArgs = UploadObjectArgs.builder()
-                    .bucket(bucketName) //桶名
-                    .filename(fileUrl) //本地文件路径（需要上传的文件）
-                    .object("user/"+objectName) //minio 上传后要放到那个文件下
-                    .contentType(contentType) //上传文件类型
-                    .build();
-            minioClient.uploadObject(uploadObjectArgs);
-        } catch (Exception e) {
-            // 处理异常
-            e.printStackTrace();
-        }
-        return endpoint+"/"+bucketName+"/user/"+objectName;
+        return endpoint+"/"+bucketName+"/"+type+"/"+originalFilename;
     }
 
     public void deleteFile(String objectName) {

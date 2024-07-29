@@ -2,12 +2,14 @@ package com.wuhao;
 
 
 import com.wuhao.client.ApiTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConfigurationProperties("api.client")
+@ConditionalOnClass()
 public class ApiClientConfig {
 
     private String accessKey;
