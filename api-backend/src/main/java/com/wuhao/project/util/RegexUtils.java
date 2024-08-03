@@ -33,13 +33,19 @@ public class RegexUtils {
     }
 
     /**
-     * 是否含有特殊字符
+     * 账号是否含有特殊字符
      * @param account 要验证的账户
      * @return
      */
     public static boolean isAccountInvalid(String account){
         return mismatch(account, RegexPatterns.ACCOUNT_REGEX);
     }
+
+    /**
+     * 密码是否含有特殊字符
+     * @param password
+     * @return
+     */
     public static boolean isPasswordInvalid(String password){
         return mismatch(password,RegexPatterns.PASSWORD_REGEX);
     }

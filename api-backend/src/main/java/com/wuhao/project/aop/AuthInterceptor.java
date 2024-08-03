@@ -1,6 +1,7 @@
 package com.wuhao.project.aop;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.wuhao.project.common.Result;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.annotation.AuthCheck;
 import com.wuhao.project.common.ErrorCode;
@@ -28,8 +29,8 @@ import java.util.stream.Collectors;
  *
  * @author yupi
  */
-//@Aspect
-//@Component
+@Aspect
+@Component
 public class AuthInterceptor {
 
     @Resource
@@ -55,23 +56,18 @@ public class AuthInterceptor {
         if (CollectionUtils.isNotEmpty(anyRole)) {
             String userRole = user.getUserRole();
             if (!anyRole.contains(userRole)) {
-                throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+                return Result.error(ErrorCode.NO_AUTH_ERROR);
             }
         }
         // 必须有所有权限才通过
         if (StringUtils.isNotBlank(mustRole)) {
             String userRole = user.getUserRole();
             if (!mustRole.equals(userRole)) {
-                throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+                return Result.error(ErrorCode.NO_AUTH_ERROR);
             }
         }
         // 通过权限校验，放行
         return joinPoint.proceed();
-    }
-
-
-    public Object aaa(ProceedingJoinPoint point){
-        return null;
     }
 }
 

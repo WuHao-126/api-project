@@ -23,6 +23,7 @@ import com.wuhao.project.service.CommentService;
 import com.wuhao.project.service.UserService;
 import com.wuhao.project.util.RegexUtils;
 import io.swagger.annotations.Api;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.wuhao.project.constant.UserConstant.USER_LOGIN_STATE;
 
+@Slf4j
 @RestController
 @RequestMapping("/user")
 @Api(value = "用户信息操作接口", tags = "用户信息操作接口")
@@ -103,17 +105,20 @@ public class UserController {
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         String email = userLoginRequest.getEmail();
-        if(StringUtils.isEmpty(userPassword)){
-            return Result.error(ErrorCode.USER_PASSWORD_NULL);
+        if(StringUtils.isAllEmpty(userAccount,userPassword,email)){
+             return Result.error(ErrorCode.PARAMS_ERROR);
         }
         User user = userService.userLogin(userAccount, userPassword, email);
         if(user ==null){
-            return Result.error(603,"账号或密码错误");
+            return Result.error(ErrorCode.USER_ACCOUNT_PASSWORD_ERROR);
         }
+        //判断是否注销或者封号
         Integer state = user.getState();
         if (state == 1){
+            //封号
             return Result.error(ErrorCode.USER_STATUS_ONE);
         }else if(state == 2){
+            //注销
             return Result.error(ErrorCode.USER_STATUS_TWO);
         }
         servletRequest.getSession().setAttribute(USER_LOGIN_STATE,user);
@@ -127,33 +132,37 @@ public class UserController {
         }
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
+        //参数进行校验
         if(StringUtils.isAllEmpty(userAccount,userPassword)){
             return Result.error(ErrorCode.PARAMS_ERROR);
         }
-        if(StringUtils.isAllEmpty(userAccount,userPassword)){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"参数为空");
+        if (userAccount.length() < 4 || userAccount.length() > 11) {
+            return Result.error(ErrorCode.USER_ACCOUNT_ILLEGAL);
         }
-        if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
-        }
-        if (userPassword.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码有误");
+        if (userPassword.length() < 4 || userPassword.length() > 14) {
+            return Result.error(ErrorCode.USER_PASSWORD_ILLEGAL);
         }
         //校验账号中是否含有特殊字符
         if (RegexUtils.isAccountInvalid(userAccount)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
+            return Result.error(ErrorCode.USER_ACCOUNT_ILLEGAL);
+        }
+        //校验密码中是否含有特殊字符
+        if (RegexUtils.isPasswordInvalid(userPassword)) {
+            return Result.error(ErrorCode.USER_PASSWORD_ILLEGAL);
         }
         String md5Password= DigestUtils.md5DigestAsHex((SALT+userPassword).getBytes());
         User loginUser = userService.query()
                 .eq("userAccount", userAccount)
                 .eq("userPassword", md5Password).one();
         if(loginUser ==null){
-            return Result.error(603,"账号或密码错误");
+            return Result.error(ErrorCode.USER_ACCOUNT_PASSWORD_ERROR);
         }
         String userRole = loginUser.getUserRole();
         if(UserConstant.SUPER_ADMIN_ROLE.equals(userRole) || UserConstant.ADMIN_ROLE.equals(userRole)){
+            servletRequest.getSession().setAttribute(USER_LOGIN_STATE,loginUser);
             return Result.success(loginUser.getId().toString());
         }else{
+            log.error("账号：{} 尝试无权限登录", userAccount);
             return Result.error(ErrorCode.NO_AUTH_ERROR);
         }
 

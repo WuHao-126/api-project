@@ -46,6 +46,7 @@ public class WebInfoController {
      * @return
      */
     @PostMapping
+    @AuthCheck(anyRole = {"superadmin","admin"})
     public Result updateWebInfo(@RequestBody WebInfo webInfo){
         return Result.success(webInfoMapper.updateWebInfo(webInfo));
     }
@@ -56,6 +57,7 @@ public class WebInfoController {
      * @return
      */
     @PostMapping("/notice/save")
+    @AuthCheck(anyRole = {"superadmin","admin"})
     public Result saveNotice(@RequestBody  WebInfo webInfo){
         String notice = webInfo.getNotice();
         Integer day = webInfo.getDay();
@@ -69,10 +71,12 @@ public class WebInfoController {
         return Result.success();
     }
     @GetMapping("/notice/delete")
+    @AuthCheck(anyRole = {"superadmin","admin"})
     public Result deleteNotice(){
         stringRedisTemplate.delete("api:web:notice");
         return Result.success();
     }
+
     @GetMapping("/notice")
     public Result getNotice(){
         String s = stringRedisTemplate.opsForValue().get("api:web:notice");
@@ -105,12 +109,14 @@ public class WebInfoController {
      * @return
      */
     @PostMapping("/tag/add")
+    @AuthCheck(anyRole = {"superadmin","admin"})
     public Result addTag(@RequestBody Tag tag){
         webInfoMapper.addTag(tag);
         return Result.success();
     }
 
     @PostMapping("/tag/update")
+    @AuthCheck(anyRole = {"superadmin","admin"})
     public Result updateTag(@RequestBody Tag tag){
         webInfoMapper.updateTag(tag);
         return Result.success();

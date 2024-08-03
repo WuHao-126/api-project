@@ -145,13 +145,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String md5Password=DigestUtils.md5DigestAsHex((SALT+userPassword).getBytes());
         User loginUser=null;
         if (!StringUtils.isEmpty(userAccount)) {
-            if(userAccount.length() < 4 && RegexUtils.isAccountInvalid(userAccount)){
+            if(userAccount.length() < 4 || RegexUtils.isAccountInvalid(userAccount) || userAccount.length()>11){
                  throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
             }
             loginUser = query()
                     .eq("userAccount", userAccount)
                     .eq("userPassword", md5Password).one();
-        }else{
+        }else if (userPassword.length() < 4 || RegexUtils.isPasswordInvalid(userPassword) || userPassword.length() > 14){
             loginUser = query()
                     .eq("email", email)
                     .eq("userPassword", md5Password).one();

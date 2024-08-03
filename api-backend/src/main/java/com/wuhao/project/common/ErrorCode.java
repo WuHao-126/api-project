@@ -3,9 +3,12 @@ package com.wuhao.project.common;
 public enum ErrorCode {
 
     SUCCESS(0, "ok"),
-    USER_ACCOUNT_PASSWORD(40000,"账号或者密码错误"),
+    USER_ACCOUNT_PASSWORD_ERROR(40000,"账号或者密码错误"),
     USER_ACCOUNT_NULL(40001,"账号为空"),
     USER_PASSWORD_NULL(40002,"密码为空"),
+    USER_ACCOUNT_ILLEGAL(40003,"账号非法"),
+    USER_PASSWORD_ILLEGAL(40004,"密码非法"),
+
     NOT_LOGIN_ERROR(40100, "未登录"),
     USER_STATUS_ERROR(40102,"账号状态异常"),
     USER_STATUS_ONE(40103,"此账号已被封禁"),
