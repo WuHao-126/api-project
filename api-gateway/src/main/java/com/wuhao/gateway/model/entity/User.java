@@ -1,4 +1,4 @@
-package com.wuhao.gateway.entity;
+package com.wuhao.gateway.model.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;

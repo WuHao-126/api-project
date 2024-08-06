@@ -1,7 +1,7 @@
 package com.wuhao.gateway.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wuhao.gateway.entity.TimeoutInterface;
+import com.wuhao.gateway.model.entity.TimeoutInterface;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;

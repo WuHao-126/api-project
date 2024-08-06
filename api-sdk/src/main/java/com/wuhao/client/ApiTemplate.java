@@ -30,7 +30,7 @@ public final class ApiTemplate {
         //获得随机数防止重放
         hashMap.put("nonce", RandomUtil.randomNumbers(4));
         hashMap.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000));
-        hashMap.put("sign", SignUtils.getSign(secretKey));
+        hashMap.put("secretKey", SignUtils.getSign(secretKey));
         return hashMap;
     }
 

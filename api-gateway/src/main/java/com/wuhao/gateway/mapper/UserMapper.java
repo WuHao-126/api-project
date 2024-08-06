@@ -1,7 +1,7 @@
 package com.wuhao.gateway.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wuhao.gateway.entity.User;
+import com.wuhao.gateway.model.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
