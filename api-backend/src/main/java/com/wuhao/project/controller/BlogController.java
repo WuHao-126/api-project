@@ -76,7 +76,9 @@ public class BlogController {
         if(loginUser==null){
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
-        //TODO 设置id
+        if(blog ==null || StringUtils.isBlank(blog.getTitle()) || StringUtils.isBlank(blog.getContent())){
+            return Result.error(400,"请补充完成标题或者内容");
+        }
         //设置文章用户信息
         blog.setId(IdUtils.getId());
         blog.setAuthorid(loginUser.getId());

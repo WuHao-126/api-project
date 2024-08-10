@@ -18,6 +18,7 @@ import com.wuhao.project.service.BlogService;
 import com.wuhao.project.service.CommentService;
 import com.wuhao.project.service.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,8 @@ implements BlogService {
     private CommonMapper commonMapper;
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     public List<Tag> getTagList() {
