@@ -42,7 +42,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     private TimeoutInterfaceMapper timeoutInterfaceMapper;
 
     //完整路径
-    private static final String INTERFACE_HOST = "http://101.126.87.57:8090";
+    private static final String INTERFACE_HOST = "http://www.apices.top:8090";
     //请求头添加
     private static final String headerKey="API-GATEWAY";
 
