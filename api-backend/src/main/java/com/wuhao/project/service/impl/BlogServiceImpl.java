@@ -14,11 +14,12 @@ import com.wuhao.project.model.entity.Comment;
 import com.wuhao.project.model.entity.Tag;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.model.request.blog.BlogQueryRequest;
+import com.wuhao.project.model.response.HotBlogResponse;
+import com.wuhao.project.model.response.HotUserResponse;
 import com.wuhao.project.service.BlogService;
 import com.wuhao.project.service.CommentService;
 import com.wuhao.project.service.UserService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,8 +46,6 @@ implements BlogService {
     private CommonMapper commonMapper;
     @Autowired
     private CommentService commentService;
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
 
     @Override
     public List<Tag> getTagList() {
@@ -160,5 +160,15 @@ implements BlogService {
         //删除收藏
         blogMapper.deleteLike(id);
         blogMapper.deleteCollect(id);
+    }
+
+    @Override
+    public List<HotBlogResponse> getHotBlog() {
+        return blogMapper.getHotBlog();
+    }
+
+    @Override
+    public List<HotUserResponse> getHotUser() {
+        return blogMapper.getHotUser();
     }
 }

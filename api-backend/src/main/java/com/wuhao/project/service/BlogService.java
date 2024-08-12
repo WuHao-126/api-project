@@ -7,6 +7,8 @@ import com.wuhao.project.common.IdRequest;
 import com.wuhao.project.model.entity.Blog;
 import com.wuhao.project.model.entity.Tag;
 import com.wuhao.project.model.request.blog.BlogQueryRequest;
+import com.wuhao.project.model.response.HotBlogResponse;
+import com.wuhao.project.model.response.HotUserResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -28,4 +30,8 @@ public interface BlogService extends IService<Blog> {
     List<Long> getMyCollection(Long id);
 
     void deleteBlog(Long id);
+
+    List<HotBlogResponse> getHotBlog();
+
+    List<HotUserResponse> getHotUser();
 }

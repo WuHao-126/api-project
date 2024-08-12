@@ -43,5 +43,34 @@
     ORDER BY
     tb.createTime desc
     </select>
+    <select id="getHotBlog" resultType="com.wuhao.project.model.response.HotBlogResponse">
+        SELECT
+            count( 1 ) as likeCount,
+            blogId as blogId,
+            b.title as title
+        FROM
+            `tb_blog_like` AS l
+                LEFT JOIN tb_blog b ON l.blogId = b.id
+        GROUP BY
+            l.blogId
+        ORDER BY
+            likeCount desc
+        LIMIT 10
+    </select>
+    <select id="getHotUser" resultType="com.wuhao.project.model.response.HotUserResponse">
+        SELECT
+            count( 1 ) as writeCount,
+            u.id as userId,
+            u.username as username
+        FROM
+            `tb_blog` AS b
+                LEFT JOIN tb_user as u ON b.authorId = u.id
+        where u.state=0
+        GROUP BY
+            b.authorId
+        ORDER BY
+            writeCount desc
+            LIMIT 10
+    </select>
 
 </mapper>

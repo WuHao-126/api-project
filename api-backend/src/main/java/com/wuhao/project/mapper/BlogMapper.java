@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wuhao.project.model.entity.Blog;
 import com.wuhao.project.model.entity.Tag;
 import com.wuhao.project.model.request.blog.BlogQueryRequest;
+import com.wuhao.project.model.response.HotBlogResponse;
+import com.wuhao.project.model.response.HotUserResponse;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
@@ -47,4 +49,8 @@ public interface BlogMapper extends BaseMapper<Blog> {
 
     @Delete("delete from tb_blog_collect where blogId=#{id}")
     void deleteCollect(Long id);
+
+    List<HotBlogResponse> getHotBlog();
+
+    List<HotUserResponse> getHotUser();
 }

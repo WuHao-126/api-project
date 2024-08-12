@@ -14,6 +14,7 @@ import com.wuhao.project.model.entity.Blog;
 import com.wuhao.project.model.entity.Comment;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.model.request.blog.BlogQueryRequest;
+import com.wuhao.project.model.response.HotBlogResponse;
 import com.wuhao.project.service.BlogService;
 import com.wuhao.project.service.CommentService;
 import com.wuhao.project.service.UserService;
@@ -246,6 +247,11 @@ public class BlogController {
         return Result.success();
     }
 
+    /**
+     * 我的博客
+     * @param idRequest
+     * @return
+     */
     @PostMapping("/my")
     public Result getMyBlog(@RequestBody IdRequest idRequest){
         Long id = idRequest.getId();
@@ -255,6 +261,12 @@ public class BlogController {
         Page<Blog> page = blogService.query().eq("authorId", id).orderByDesc("createTime").page(new Page<Blog>(1, 10));
         return Result.success(page);
     }
+
+    /**
+     * 我的收藏
+     * @param idRequest
+     * @return
+     */
     @PostMapping("/my/collect")
     public Result getMyCollection(@RequestBody IdRequest idRequest){
         Long id = idRequest.getId();
@@ -272,6 +284,16 @@ public class BlogController {
         Page<Blog> page=new Page<>();
         page.setRecords(list);
         return Result.success(page);
+    }
+
+    @GetMapping("hot/blog")
+    public Result getHotBlog(){
+       return  Result.success(blogService.getHotBlog());
+    }
+
+    @GetMapping("hot/user")
+    public Result getHotUser(){
+        return Result.success(blogService.getHotUser());
     }
 
 }

@@ -17,6 +17,11 @@ spring:
     port: 6379
     timeout: 5000
     password: 12345678
+  rabbitmq:
+    host: 101.126.87.57
+    port: 15672
+    username: guest
+    password: guest
   mail:
     host: smtp.qq.com
     port: 465
@@ -50,22 +55,9 @@ mybatis-plus:
       logic-delete-field: isDelete # 全局逻辑删除的实体字段名
 #      logic-delete-value: 1 # 逻辑已删除值（默认为 1）
       logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
-
 minio:
   endpoint: http://101.126.87.57:9090
   accessKey: minioadmin
   secretKey: minioadmin
 
-api:
-  client:
-    access-key: 0f5149a3493b317d3a7a29169e27480e
-    secret-key: 295bbbcc32564ad2979d0edf60a5144d
 
-dynamic:
-  thread:
-    pool:
-      config:
-        enabled: true
-        host: localhost
-        port: 6379
-        password: 12345678
