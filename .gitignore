@@ -1,7 +1,7 @@
 # 忽略匹配下列规则的Git 提交 V2.1.0
 ### gradle ###
 .gradle
-/build/
+/api-backend/build/
 !gradle/wrapper/gradle-wrapper.jar
 
 ### STS ###
@@ -24,7 +24,7 @@ rebel.xml
 
 ### NetBeans ###
 nbproject/private/
-build/
+api-backend/build/
 nbbuild/
 nbdist/
 .nb-gradle/

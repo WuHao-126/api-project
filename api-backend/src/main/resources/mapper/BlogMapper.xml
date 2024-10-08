@@ -25,6 +25,7 @@
     LEFT JOIN
         tb_comment tc ON tb.id = tc.articleId
     <where>
+        and tb.isDeleted = 0
         <if test="request.title != null and request.title != ''">
           and title like concat('%',concat(#{request.title},'%'))
         </if>
@@ -34,9 +35,6 @@
         <if test="request.beginDate != null and request.endDate != null">
           and createTime between #{request.beginDate} and #{request.endDate}
         </if>
-<!--        <if test="request.newBlog != null and request.newBlog !=''">-->
-<!--            -->
-<!--        </if>-->
     </where>
     GROUP BY
     tb.id
@@ -51,6 +49,7 @@
         FROM
             `tb_blog_like` AS l
                 LEFT JOIN tb_blog b ON l.blogId = b.id
+        WHERE b.isDeleted = 0
         GROUP BY
             l.blogId
         ORDER BY
