@@ -3,6 +3,7 @@ package com.wuhao.project.controller;
 import com.wuhao.project.common.ErrorCode;
 import com.wuhao.project.common.Result;
 import com.wuhao.project.exception.BusinessException;
+import com.wuhao.project.model.vo.UploadFileVo;
 import com.wuhao.project.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +39,13 @@ public class UploadController {
         String absolutePath = tempFile.getAbsolutePath();
         String contentType = file.getContentType();
         String originalFilename = file.getOriginalFilename();
-        String s = uploadService.uploadImage(absolutePath, originalFilename, contentType,type);
+        UploadFileVo uploadFileVo = UploadFileVo.builder()
+                .absolutePath(absolutePath)
+                .originalFilename(originalFilename)
+                .contentType(contentType)
+                .type(type)
+                .build();
+        String s = uploadService.uploadImage(uploadFileVo);
         if("markdown".equals(type)){
             return Result.success(s);
         }

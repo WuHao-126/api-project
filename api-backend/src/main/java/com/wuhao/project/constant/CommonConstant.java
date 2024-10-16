@@ -37,4 +37,5 @@ public interface CommonConstant {
     String BLOG_Collect="api:blog:collect:";
 
     String EMAIL_CODE="api:email:code:";
+    String BLOG_LIKE_HOT="api:blog:hot:like";
 }

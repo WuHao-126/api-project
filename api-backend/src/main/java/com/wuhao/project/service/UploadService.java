@@ -1,5 +1,8 @@
 package com.wuhao.project.service;
 
+import com.wuhao.project.model.vo.UploadFileVo;
+import io.minio.MinioClient;
+
 import java.io.InputStream;
 
 /**
@@ -9,6 +12,8 @@ import java.io.InputStream;
  */
 public interface UploadService {
 
-    String uploadImage(String absolutePath, String originalFilename, String contentType, String type);
+    String uploadImage(UploadFileVo uploadFileVo);
+
+    String upload(MinioClient minioClient,UploadFileVo uploadFileVo);
 
 }

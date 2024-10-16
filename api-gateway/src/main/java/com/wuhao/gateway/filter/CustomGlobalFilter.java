@@ -73,12 +73,14 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         request.mutate().headers(httpHeaders -> {
             httpHeaders.add("X-AuthorizationToken-Header",headerKey);
         }).build();
+
         exchange.mutate().request(request);
         HttpHeaders headers = request.getHeaders();
         //3、网页测试数据直接通过
         String first = headers.getFirst("api-gateway-test");
         String s="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";
         if(s.equals(first)){
+            log.info("本次请求为前台测试请求，允许通过：{}",request.getId());
             return chain.filter(exchange);
         }
         //流量限制
@@ -94,7 +96,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         zSetOperations.add(key,String.valueOf(currentTime),currentTime);
         //5、统一的鉴权
         String accessKey = headers.getFirst("accessKey");
-        String secretkey = headers.getFirst("secretkey");
+        String secretkey = headers.getFirst("secretKey");
         String redisSccessKey = redisTemplate.opsForValue().get("accessKey");
         if(StringUtils.isEmpty(redisSccessKey)){
             User user = userMapper.selectOne(new QueryWrapper<User>().eq("accessKey", accessKey));
@@ -106,7 +108,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         }
         //6、密钥加密后进行校验
         String serverSign = SignUtils.getSign(redisSccessKey);
-        if (!secretkey.equals(serverSign)) {
+        if (!secretkey.equals(redisSccessKey)) {
             return handleNoAuth(response);
         }
         return chain.filter(exchange).then(

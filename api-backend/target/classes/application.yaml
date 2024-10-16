@@ -8,20 +8,15 @@ spring:
     timeout: 2592000
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/api?serverTimezone=Asia/Shanghai
-    username: 1345498749
+    url: jdbc:mysql://101.126.87.57:3306/api?serverTimezone=Asia/Shanghai
+    username: root
     password: 1345498749...
   redis:
     database: 1
-    host: localhost
+    host: 101.126.87.57
     port: 6379
     timeout: 5000
-    password: 12345678
-  rabbitmq:
-    host: 101.126.87.57
-    port: 15672
-    username: guest
-    password: guest
+#    password: 12345678
   mail:
     host: smtp.qq.com
     port: 465

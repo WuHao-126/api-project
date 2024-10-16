@@ -1,11 +1,11 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/api?serverTimezone=Asia/Shanghai
-    username: 1345498749
+    url: jdbc:mysql://101.126.87.57:3306/api?serverTimezone=Asia/Shanghai
+    username: root
     password: 1345498749...
   redis:
-    host: localhost
+    host: 101.126.87.57
     port: 6379
     password: 12345678
   application:
@@ -25,7 +25,7 @@ spring:
     gateway:
       routes:
         - id: after_route
-          uri: http://127.0.0.1:8102
+          uri: http://101.126.87.57:8102
           predicates:
             - Path=/interface/**
 server:

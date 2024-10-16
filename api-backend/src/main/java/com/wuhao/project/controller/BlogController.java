@@ -9,6 +9,7 @@ import com.wuhao.project.common.DeleteRequest;
 import com.wuhao.project.common.ErrorCode;
 import com.wuhao.project.common.IdRequest;
 import com.wuhao.project.common.Result;
+import com.wuhao.project.constant.CommonConstant;
 import com.wuhao.project.exception.BusinessException;
 import com.wuhao.project.model.entity.Blog;
 import com.wuhao.project.model.entity.Comment;
@@ -25,15 +26,20 @@ import com.wuhao.project.support.sensitive.algorithm.SlidingTimeWindowLimiter;
 import com.wuhao.project.util.IdUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
+
 
 /**
  * @Author: wuhao
@@ -49,6 +55,10 @@ public class BlogController {
     private CommentService commentService;
     @Autowired
     private UserService userService;
+    @Resource
+    private ThreadPoolExecutor blogThreadPoolExecutor;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     private TrafficLimiter limiter = new SlidingTimeWindowLimiter();
 
@@ -164,6 +174,16 @@ public class BlogController {
     @PostMapping("/like")
     public Result likeBlog(@RequestBody IdRequest idRequest,HttpServletRequest request){
         Integer integer = blogService.likeBlog(idRequest, request);
+//        blogThreadPoolExecutor.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                List<HotBlogResponse> hotBlog = blogService.getHotBlog();
+//                //全部删除
+//                ZSetOperations<String, String> zSetOperations = stringRedisTemplate.opsForZSet();
+//                zSetOperations.removeRange(CommonConstant.BLOG_LIKE,0,zSetOperations.size(CommonConstant.BLOG_LIKE_HOT));
+//                zSetOperations.ad
+//            }
+//        });
         return Result.success(integer);
     }
 

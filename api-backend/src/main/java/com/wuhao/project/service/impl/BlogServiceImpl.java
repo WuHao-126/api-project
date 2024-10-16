@@ -164,6 +164,7 @@ implements BlogService {
 
     @Override
     public List<HotBlogResponse> getHotBlog() {
+        stringRedisTemplate.opsForZSet();
         return blogMapper.getHotBlog();
     }
 

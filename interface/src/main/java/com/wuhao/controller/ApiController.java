@@ -54,6 +54,7 @@ public class ApiController {
         map.put("qq",qq);
         HttpResponse response = HttpRequest.get("http://japi.juhe.cn/qqevaluate/qq").form(map).execute();
         String body = response.body();
+        System.out.println(body);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = null; // 解析整个JSON字符串为JsonNode
         try {

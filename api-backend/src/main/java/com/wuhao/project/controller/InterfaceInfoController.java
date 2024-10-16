@@ -202,6 +202,9 @@ public class InterfaceInfoController {
             String required = requestFieldParam.getRequired();
             String fieldName = requestFieldParam.getFieldName();
             String value = requestFieldParam.getValue();
+            if("accessKey".equals(fieldName) || "secretKey".equals(fieldName)){
+                continue;
+            }
             if("是".equals(required) && StringUtils.isEmpty(value)){
                 return Result.error(ErrorCode.PARAMS_ERROR);
             }
