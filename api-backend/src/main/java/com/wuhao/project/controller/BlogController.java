@@ -111,10 +111,16 @@ public class BlogController {
      */
     @PostMapping("/delete")
     public Result deleteBlogById(@RequestBody DeleteRequest deleteRequest){
-        if(deleteRequest==null){
+        if(deleteRequest==null) {
             return Result.error(ErrorCode.PARAMS_NULL);
         }
-        blogService.deleteBlog(deleteRequest.getId());
+        Blog blog = blogService.getById(deleteRequest.getId());
+        if(blog == null){
+            return Result.error(ErrorCode.NOT_FOUND_ERROR);
+        }
+        //修改状态为删除 1
+        blog.setIsDeleted(1);
+        blogService.updateById(blog);
         return Result.success();
     }
 
@@ -154,7 +160,7 @@ public class BlogController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         Blog byId = blogService.getById(id);
-        if(byId==null){
+        if(byId==null || byId.getIsDeleted()==1){
             return Result.error(ErrorCode.NOT_FOUND_ERROR);
         }else{
             return Result.success(byId);
@@ -278,7 +284,7 @@ public class BlogController {
         if(id == null){
             return Result.error(ErrorCode.PARAMS_ERROR);
         }
-        Page<Blog> page = blogService.query().eq("authorId", id).orderByDesc("createTime").page(new Page<Blog>(1, 10));
+        Page<Blog> page = blogService.query().eq("authorId", id).eq("isDeleted",0).orderByDesc("createTime").page(new Page<Blog>(1, 10));
         return Result.success(page);
     }
 
