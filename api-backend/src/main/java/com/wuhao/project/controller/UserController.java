@@ -105,22 +105,7 @@ public class UserController {
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         String email = userLoginRequest.getEmail();
-        if(StringUtils.isAllEmpty(userAccount,userPassword,email)){
-             return Result.error(ErrorCode.PARAMS_ERROR);
-        }
         User user = userService.userLogin(userAccount, userPassword, email);
-        if(user ==null){
-            return Result.error(ErrorCode.USER_ACCOUNT_PASSWORD_ERROR);
-        }
-        //判断是否注销或者封号
-        Integer state = user.getState();
-        if (state == 1){
-            //封号
-            return Result.error(ErrorCode.USER_STATUS_ONE);
-        }else if(state == 2){
-            //注销
-            return Result.error(ErrorCode.USER_STATUS_TWO);
-        }
         servletRequest.getSession().setAttribute(USER_LOGIN_STATE,user);
         return Result.success(user.getId().toString());
     }
@@ -142,14 +127,14 @@ public class UserController {
         if (userPassword.length() < 4 || userPassword.length() > 14) {
             return Result.error(ErrorCode.USER_PASSWORD_ILLEGAL);
         }
-        //校验账号中是否含有特殊字符
-        if (RegexUtils.isAccountInvalid(userAccount)) {
-            return Result.error(ErrorCode.USER_ACCOUNT_ILLEGAL);
-        }
-        //校验密码中是否含有特殊字符
-        if (RegexUtils.isPasswordInvalid(userPassword)) {
-            return Result.error(ErrorCode.USER_PASSWORD_ILLEGAL);
-        }
+//        //校验账号中是否含有特殊字符
+//        if (RegexUtils.isAccountInvalid(userAccount)) {
+//            return Result.error(ErrorCode.USER_ACCOUNT_ILLEGAL);
+//        }
+//        //校验密码中是否含有特殊字符
+//        if (RegexUtils.isPasswordInvalid(userPassword)) {
+//            return Result.error(ErrorCode.USER_PASSWORD_ILLEGAL);
+//        }
         String md5Password= DigestUtils.md5DigestAsHex((SALT+userPassword).getBytes());
         User loginUser = userService.query()
                 .eq("userAccount", userAccount)

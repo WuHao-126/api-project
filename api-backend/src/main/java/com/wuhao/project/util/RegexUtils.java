@@ -6,21 +6,28 @@ import cn.hutool.core.util.StrUtil;
  * @author 虎哥
  */
 public class RegexUtils {
+
+    public static void main(String[] args) {
+        boolean accountInvalid = isAccountError("1345498749@@");
+        System.out.println(accountInvalid);
+        boolean phoneInvalid = isPhoneError("132");
+        System.out.println(phoneInvalid);
+    }
     /**
      * 是否是无效手机格式
      * @param phone 要校验的手机号
      * @return true:符合，false：不符合
      */
-    public static boolean isPhoneInvalid(String phone){
-        return mismatch(phone, RegexPatterns.PHONE_REGEX);
+    public static boolean isPhoneError(String phone){
+        return !mismatch(phone, RegexPatterns.PHONE_REGEX);
     }
     /**
      * 是否是无效邮箱格式
      * @param email 要校验的邮箱
      * @return true:符合，false：不符合
      */
-    public static boolean isEmailInvalid(String email){
-        return mismatch(email, RegexPatterns.EMAIL_REGEX);
+    public static boolean isEmailError(String email){
+        return !mismatch(email, RegexPatterns.EMAIL_REGEX);
     }
 
     /**
@@ -28,8 +35,8 @@ public class RegexUtils {
      * @param code 要校验的验证码
      * @return true:符合，false：不符合
      */
-    public static boolean isCodeInvalid(String code){
-        return mismatch(code, RegexPatterns.VERIFY_CODE_REGEX);
+    public static boolean isCodeError(String code){
+        return !mismatch(code, RegexPatterns.VERIFY_CODE_REGEX);
     }
 
     /**
@@ -37,8 +44,8 @@ public class RegexUtils {
      * @param account 要验证的账户
      * @return
      */
-    public static boolean isAccountInvalid(String account){
-        return mismatch(account, RegexPatterns.ACCOUNT_REGEX);
+    public static boolean isAccountError(String account){
+        return !mismatch(account, RegexPatterns.ACCOUNT_REGEX);
     }
 
     /**
@@ -46,9 +53,10 @@ public class RegexUtils {
      * @param password
      * @return
      */
-    public static boolean isPasswordInvalid(String password){
+    public static boolean isPasswordError(String password){
         return mismatch(password,RegexPatterns.PASSWORD_REGEX);
     }
+
     // 校验是否不符合正则格式
     private static boolean mismatch(String str, String regex){
         if (StrUtil.isBlank(str)) {

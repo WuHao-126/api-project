@@ -3,6 +3,7 @@ package com.wuhao.project.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wuhao.project.model.request.user.UserRegisterRequest;
+import com.wuhao.project.model.response.FirstTokenResponse;
 import com.wuhao.project.model.response.LoginUserResponse;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.model.request.user.UserQueryRequest;
@@ -26,7 +27,7 @@ public interface UserService extends IService<User> {
      * @param userPassword
      * @return
      */
-    User userLogin(String userAccount, String userPassword,String email);
+    FirstTokenResponse userLogin(String userAccount, String userPassword, String email);
 
 
     /**

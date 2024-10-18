@@ -4,7 +4,9 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wuhao.project.common.Result;
 import com.wuhao.project.model.request.user.UserRegisterRequest;
+import com.wuhao.project.model.response.FirstTokenResponse;
 import com.wuhao.project.model.response.LoginUserResponse;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.common.ErrorCode;
@@ -80,7 +82,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 if (userAccount.length() < 4) {
                     throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号长度小于4");
                 }
-                if(RegexUtils.isAccountInvalid(userAccount)){
+                if(RegexUtils.isAccountError(userAccount)){
                     throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号含有特殊字符");
                 }
                 // 账户不能重复
@@ -102,7 +104,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     user.setUserAvatar("default.jpg");
                 }
                 this.save(user);
-                return user.getId();
+                return 0l;
             }else if(!StringUtils.isEmpty(email)){
                 //邮箱注册
                 if (true){
@@ -127,7 +129,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                     user.setUserPassword(encryptPassword);
                     user.setUserAvatar("default.jpg");
                     this.save(user);
-                    return user.getId();
+                    return 0l;
                 }
             }
             return 0l;
@@ -135,28 +137,37 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public User userLogin(String userAccount, String userPassword,String email) {
-        if(StringUtils.isAllEmpty(userAccount,email)){
-            throw new BusinessException(ErrorCode.PARAMS_NULL,"参数为空");
+    public FirstTokenResponse userLogin(String userAccount, String userPassword, String email) {
+        //对账号合法性进行判断
+        if(RegexUtils.isAccountError(userAccount)){
+            throw new BusinessException(ErrorCode.USER_ACCOUNT_ILLEGAL);
         }
-        if (userPassword.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码有误");
+        User user = query()
+                .eq(StringUtils.isNoneBlank(userAccount),"userAccount", userAccount)
+                .or()
+                .eq(StringUtils.isNoneBlank(email),"email", email)
+                .one();
+        if(user == null){
+            throw new BusinessException("登录用户: "+userAccount+" 不存在");
+        }
+        Integer state = user.getState();
+        // 1.封号  2.注销
+        if (state == 1){
+            throw new BusinessException(ErrorCode.USER_STATUS_ONE);
+        }else if(state == 2){
+            throw new BusinessException(ErrorCode.USER_STATUS_TWO);
+        }
+        //对密码合法性进行判断
+        if (RegexUtils.isPasswordError(userPassword)) {
+            throw new BusinessException(ErrorCode.USER_PASSWORD_ILLEGAL);
         }
         String md5Password=DigestUtils.md5DigestAsHex((SALT+userPassword).getBytes());
-        User loginUser=null;
-        if (!StringUtils.isEmpty(userAccount)) {
-            if(userAccount.length() < 4 || RegexUtils.isAccountInvalid(userAccount) || userAccount.length()>11){
-                 throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
-            }
-            loginUser = query()
-                    .eq("userAccount", userAccount)
-                    .eq("userPassword", md5Password).one();
-        }else if (userPassword.length() < 4 || RegexUtils.isPasswordInvalid(userPassword) || userPassword.length() > 14){
-            loginUser = query()
-                    .eq("email", email)
-                    .eq("userPassword", md5Password).one();
+        if(!md5Password.equals(user.getUserPassword())){
+            throw new BusinessException(ErrorCode.USER_PASSWORD_ERROR);
         }
-        return loginUser;
+        FirstTokenResponse firstTokenResponse = new FirstTokenResponse();
+        firstTokenResponse.setUserId(user.getId());
+        return firstTokenResponse;
     }
 
     @Override
@@ -167,7 +178,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return null;
         }
         // 从数据库查询（追求性能的话可以注释，直接走缓存）
-        long userId = currentUser.getId();
+        long userId = Long.parseLong(currentUser.getId());
         User user = this.getById(userId);
         if (user == null) {
             throw new BusinessException(ErrorCode.USER_STATUS_ERROR);
@@ -193,8 +204,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public Boolean updateUser(User user, User loginUser) {
-        Long id = user.getId();
-        if(id<=0){
+        String id= user.getId();
+        if(false){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         if(loginUser.getId()!=id || isAdmin(loginUser)){

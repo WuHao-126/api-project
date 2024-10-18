@@ -8,6 +8,7 @@ public enum ErrorCode {
     USER_PASSWORD_NULL(40002,"密码为空"),
     USER_ACCOUNT_ILLEGAL(40003,"账号非法"),
     USER_PASSWORD_ILLEGAL(40004,"密码非法"),
+    USER_PASSWORD_ERROR(40002,"密码错误"),
 
     NOT_LOGIN_ERROR(40100, "未登录"),
     USER_STATUS_ERROR(40102,"账号状态异常"),
@@ -21,11 +22,11 @@ public enum ErrorCode {
     NOTICE_NULL(4108,"暂无公告"),
 
 
-    SYSTEM_ERROR(50000, "系统内部异常"),
-    OPERATION_ERROR(50001, "操作失败"),
-    DELETE_ERROR(50002,"删除失败"),
-    UPDATE_ERROR(50003,"修改失败"),
-    INSERT_ERROR(50004,"添加失败"),
+    SYSTEM_ERROR(511, "系统内部异常"),
+    OPERATION_ERROR(501, "操作失败"),
+    DELETE_ERROR(511,"删除失败"),
+    UPDATE_ERROR(511,"修改失败"),
+    INSERT_ERROR(511,"添加失败"),
     PARAMS_ERROR(40004, "请求参数异常"),
     PARAMS_NULL(40000, "请求参数为空"),
     NO_AUTH_ERROR(50005, "无权限操作"),
