@@ -8,7 +8,9 @@ import com.wuhao.project.mapper.WebInfoMapper;
 import com.wuhao.project.model.entity.ExceptionalLog;
 import com.wuhao.project.model.entity.Tag;
 import com.wuhao.project.model.entity.WebInfo;
+import com.wuhao.project.model.response.LoginUser;
 import com.wuhao.project.model.response.TimeoutInterfaceResponse;
+import com.wuhao.project.security.UserContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -37,6 +39,8 @@ public class WebInfoController {
      */
     @GetMapping
     public Result getWebInfo(){
+        LoginUser context = UserContextHolder.getContext();
+        log.info("当前登录用户为{}",context.toString());
         return Result.success(webInfoMapper.getWebInfo());
     }
 

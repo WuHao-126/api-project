@@ -12,7 +12,7 @@ public class FirstTokenResponse {
     /**
      * 用户ID
      */
-    private String userId;
+    private Long userId;
     /**
      * token
      */

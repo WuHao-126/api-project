@@ -50,7 +50,7 @@ public class EmailController {
             return Result.error(ErrorCode.ALREADY_REGISTER);
         }
         String email = request.getEmail();
-        if(!RegexUtils.isEmailInvalid(email)){
+        if(!RegexUtils.isEmailError(email)){
             return Result.error(ErrorCode.PARAMS_ERROR);
         };
         User email2 = userService.query().eq("email", email).one();
@@ -72,7 +72,7 @@ public class EmailController {
     @PostMapping("/send")
     public Result sendEmailCode(@RequestBody UserEmailCodeRequest request){
         String email = request.getEmail();
-        if(!RegexUtils.isEmailInvalid(email)){
+        if(!RegexUtils.isEmailError(email)){
             return Result.error(ErrorCode.PARAMS_ERROR);
         };
         User user = userService.query().eq("email", email).one();

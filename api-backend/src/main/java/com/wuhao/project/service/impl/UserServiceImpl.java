@@ -16,6 +16,7 @@ import com.wuhao.project.model.enmus.UserRoleEnum;
 import com.wuhao.project.model.request.user.UserQueryRequest;
 import com.wuhao.project.service.UserService;
 import com.wuhao.project.util.IdUtils;
+import com.wuhao.project.util.JwtUtil;
 import com.wuhao.project.util.RegexUtils;
 import com.wuhao.project.util.UserUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ import org.springframework.util.DigestUtils;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 import static com.wuhao.project.constant.UserConstant.USER_LOGIN_STATE;
 
@@ -166,7 +168,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.USER_PASSWORD_ERROR);
         }
         FirstTokenResponse firstTokenResponse = new FirstTokenResponse();
+        String token = JwtUtil.getToken(user.getId());
         firstTokenResponse.setUserId(user.getId());
+        firstTokenResponse.setToken(token);
+        redisTemplate.opsForValue().set("api:user:token:"+user.getId(),token,1, TimeUnit.DAYS);
         return firstTokenResponse;
     }
 
@@ -178,7 +183,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return null;
         }
         // 从数据库查询（追求性能的话可以注释，直接走缓存）
-        long userId = Long.parseLong(currentUser.getId());
+        long userId = (currentUser.getId());
         User user = this.getById(userId);
         if (user == null) {
             throw new BusinessException(ErrorCode.USER_STATUS_ERROR);
@@ -204,7 +209,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public Boolean updateUser(User user, User loginUser) {
-        String id= user.getId();
+        Long id= user.getId();
         if(false){
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }

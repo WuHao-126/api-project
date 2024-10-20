@@ -9,6 +9,7 @@ import com.wuhao.project.common.IdRequest;
 import com.wuhao.project.constant.CommonConstant;
 import com.wuhao.project.model.entity.Blog;
 import com.wuhao.project.model.request.user.*;
+import com.wuhao.project.model.response.FirstTokenResponse;
 import com.wuhao.project.model.response.LoginUserResponse;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.annotation.AuthCheck;
@@ -105,9 +106,9 @@ public class UserController {
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         String email = userLoginRequest.getEmail();
-        User user = userService.userLogin(userAccount, userPassword, email);
-        servletRequest.getSession().setAttribute(USER_LOGIN_STATE,user);
-        return Result.success(user.getId().toString());
+        FirstTokenResponse firstTokenResponse = userService.userLogin(userAccount, userPassword, email);
+//        servletRequest.getSession().setAttribute(USER_LOGIN_STATE,user);
+        return Result.success(firstTokenResponse);
     }
 
     @PostMapping("/admin/login")
