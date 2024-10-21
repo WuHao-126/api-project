@@ -1,6 +1,7 @@
 package com.wuhao.project.util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.apache.commons.lang3.StringUtils;
@@ -78,6 +79,10 @@ public class JwtUtil {
      * @return
      */
     public static String getUserId(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
+        JwtParser jwtParser = Jwts.parser().setSigningKey(SECRET_KEY);
+        if(jwtParser != null){
+            return jwtParser.parseClaimsJws(token).getBody().getSubject();
+        }
+        return "";
     }
 }

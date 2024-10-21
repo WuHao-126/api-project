@@ -47,12 +47,11 @@ public class UserInterfaceInfoController {
      * 创建
      *
      * @param userInterfaceInfoAddRequest
-     * @param request
      * @return
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public Result addUserInterfaceInfo(@RequestBody UserInterfaceInfoAddRequest userInterfaceInfoAddRequest, HttpServletRequest request) {
+    public Result addUserInterfaceInfo(@RequestBody UserInterfaceInfoAddRequest userInterfaceInfoAddRequest) {
         if (userInterfaceInfoAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -60,7 +59,7 @@ public class UserInterfaceInfoController {
         BeanUtils.copyProperties(userInterfaceInfoAddRequest, userInterfaceInfo);
         // 校验
         userInterfaceInfoService.validUserInterfaceInfo(userInterfaceInfo, true);
-        User loginUser = userService.getLoginUser(request);
+        User loginUser = userService.getLoginUser();
         userInterfaceInfo.setUserId(loginUser.getId());
         boolean result = userInterfaceInfoService.save(userInterfaceInfo);
         if (!result) {
@@ -72,18 +71,16 @@ public class UserInterfaceInfoController {
 
     /**
      * 删除
-     *
      * @param deleteRequest
-     * @param request
      * @return
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public Result deleteUserInterfaceInfo(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+    public Result deleteUserInterfaceInfo(@RequestBody DeleteRequest deleteRequest) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User user = userService.getLoginUser(request);
+        User user = userService.getLoginUser();
         long id = deleteRequest.getId();
         // 判断是否存在
         UserInterfaceInfo oldUserInterfaceInfo = userInterfaceInfoService.getById(id);
@@ -91,7 +88,7 @@ public class UserInterfaceInfoController {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
         // 仅本人或管理员可删除
-        if (!oldUserInterfaceInfo.getUserId().equals(user.getId()) && !userService.isAdmin(request)) {
+        if (!oldUserInterfaceInfo.getUserId().equals(user.getId()) && !userService.isAdmin(user)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean b = userInterfaceInfoService.removeById(id);
@@ -100,15 +97,12 @@ public class UserInterfaceInfoController {
 
     /**
      * 更新
-     *
      * @param userInterfaceInfoUpdateRequest
-     * @param request
      * @return
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public Result updateUserInterfaceInfo(@RequestBody UserInterfaceInfoUpdateRequest userInterfaceInfoUpdateRequest,
-                                                         HttpServletRequest request) {
+    public Result updateUserInterfaceInfo(@RequestBody UserInterfaceInfoUpdateRequest userInterfaceInfoUpdateRequest) {
         if (userInterfaceInfoUpdateRequest == null || userInterfaceInfoUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -116,7 +110,7 @@ public class UserInterfaceInfoController {
         BeanUtils.copyProperties(userInterfaceInfoUpdateRequest, userInterfaceInfo);
         // 参数校验
         userInterfaceInfoService.validUserInterfaceInfo(userInterfaceInfo, false);
-        User user = userService.getLoginUser(request);
+        User user = userService.getLoginUser();
         long id = userInterfaceInfoUpdateRequest.getId();
         // 判断是否存在
         UserInterfaceInfo oldUserInterfaceInfo = userInterfaceInfoService.getById(id);
@@ -124,7 +118,7 @@ public class UserInterfaceInfoController {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
         // 仅本人或管理员可修改
-        if (!oldUserInterfaceInfo.getUserId().equals(user.getId()) && !userService.isAdmin(request)) {
+        if (!oldUserInterfaceInfo.getUserId().equals(user.getId()) && !userService.isAdmin(user)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean result = userInterfaceInfoService.updateById(userInterfaceInfo);
@@ -169,12 +163,11 @@ public class UserInterfaceInfoController {
      * 分页获取列表
      *
      * @param userInterfaceInfoQueryRequest
-     * @param request
      * @return
      */
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @GetMapping("/list/page")
-    public Result listUserInterfaceInfoByPage(UserInterfaceInfoQueryRequest userInterfaceInfoQueryRequest, HttpServletRequest request) {
+    public Result listUserInterfaceInfoByPage(UserInterfaceInfoQueryRequest userInterfaceInfoQueryRequest) {
         if (userInterfaceInfoQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }

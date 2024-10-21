@@ -242,10 +242,7 @@ public class UserController {
      */
     @GetMapping("/current/{userId}")
     public Result getCurrentUser(@PathVariable("userId") String userId,HttpServletRequest servletRequest){
-        if(servletRequest==null){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        User currentUser=userService.getLoginUser(servletRequest);
+        User currentUser=userService.getLoginUser();
         if(currentUser==null){
             return Result.error(ErrorCode.NOT_LOGIN_ERROR);
         }
@@ -253,25 +250,24 @@ public class UserController {
         if(Long.parseLong(userId)==id){
             return Result.success(currentUser);
         }else{
-            userService.userLogout(servletRequest);
+            userService.userLogout();
             throw new BusinessException(ErrorCode.USER_STATUS_ERROR);
         }
     }
 
     @GetMapping("/current")
-    public Result getCurrentUser(HttpServletRequest request){
-        return Result.success(userService.getLoginUser(request));
+    public Result getCurrentUser(){
+        return Result.success(userService.getLoginUser());
     }
 
     /**
      * 根据 id 获取用户（仅管理员）
      *
      * @param id
-     * @param request
      * @return
      */
     @GetMapping("/get")
-    public Result getUserById(long id, HttpServletRequest request) {
+    public Result getUserById(long id) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -289,15 +285,11 @@ public class UserController {
     }
     /**
      * 当前用户退出
-     * @param servletRequest
      * @return
      */
     @PostMapping("/logout")
-    public Result userLogout(HttpServletRequest servletRequest){
-        if(servletRequest==null){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        boolean flag=userService.userLogout(servletRequest);
+    public Result userLogout(){
+        boolean flag=userService.userLogout();
         return Result.success(flag);
     }
 
@@ -305,16 +297,14 @@ public class UserController {
      * 更新个人信息
      *
      * @param userUpdateMyRequest 用户需要更改的数据
-     * @param request
      * @return
      */
     @PostMapping("/update")
-    public Result updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
-                                              HttpServletRequest request) {
+    public Result updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest) {
         if (userUpdateMyRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userService.getLoginUser(request);
+        User loginUser = userService.getLoginUser();
         Long id = loginUser.getId();
         Long id1 = userUpdateMyRequest.getId();
         String userRole = loginUser.getUserRole();
@@ -409,8 +399,8 @@ public class UserController {
 
 
     @GetMapping("key")
-    public Result createKey(HttpServletRequest request){
-        User loginUser = userService.getLoginUser(request);
+    public Result createKey(){
+        User loginUser = userService.getLoginUser();
         if(loginUser==null){
             return Result.error(ErrorCode.NOT_LOGIN_ERROR);
         }
@@ -422,7 +412,7 @@ public class UserController {
             //账户封禁
             loginUser.setState(1);
             userService.updateById(loginUser);
-            userService.userLogout(request);
+            userService.userLogout();
             throw new BusinessException(606,"账号:"+userAccount+"非法获取数据");
         }
         if(StringUtils.isAllEmpty(accessKey1,secretKey1)){

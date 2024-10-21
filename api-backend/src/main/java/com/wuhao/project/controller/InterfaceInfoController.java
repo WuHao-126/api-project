@@ -105,7 +105,7 @@ public class InterfaceInfoController {
         BeanUtils.copyProperties(interfaceInfoUpdateRequest, interfaceInfo);
         // 参数校验
         interfaceInfoService.validInterfaceInfo(interfaceInfo, false);
-        User user = userService.getLoginUser(request);
+        User user = userService.getLoginUser();
         long id = interfaceInfoUpdateRequest.getId();
         // 判断是否存在
         InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
@@ -113,7 +113,7 @@ public class InterfaceInfoController {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
         // 仅本人或管理员可修改
-        if (!oldInterfaceInfo.getCreateBy().equals(user.getId()) && !userService.isAdmin(request)) {
+        if (!oldInterfaceInfo.getCreateBy().equals(user.getId()) && !userService.isAdmin(user)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean result = interfaceInfoService.updateById(interfaceInfo);
@@ -233,13 +233,11 @@ public class InterfaceInfoController {
      * 发布
      * 修改接口信息为发布状态
      * @param idRequest
-     * @param request
      * @return
      */
     @PostMapping("/online")
 //    @AuthCheck(anyRole = {UserConstant.SUPER_ADMIN_ROLE,UserConstant.ADMIN_ROLE})
-    public Result onlineInterfaceInfo(@RequestBody IdRequest idRequest,
-                                                     HttpServletRequest request) {
+    public Result onlineInterfaceInfo(@RequestBody IdRequest idRequest) {
         if (idRequest == null || idRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -269,15 +267,12 @@ public class InterfaceInfoController {
 
     /**
      * 下线
-     *
      * @param idRequest
-     * @param request
      * @return
      */
     @PostMapping("/offline")
     @AuthCheck(anyRole = {UserConstant.SUPER_ADMIN_ROLE,UserConstant.ADMIN_ROLE})
-    public Result offlineInterfaceInfo(@RequestBody IdRequest idRequest,
-                                                      HttpServletRequest request) {
+    public Result offlineInterfaceInfo(@RequestBody IdRequest idRequest) {
         if (idRequest == null || idRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }

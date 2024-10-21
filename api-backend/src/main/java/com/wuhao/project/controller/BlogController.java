@@ -69,21 +69,20 @@ public class BlogController {
      * @return
      */
     @PostMapping("/page")
-    public Result getBlogPage(@RequestBody BlogQueryRequest blogQueryRequest,HttpServletRequest request){
+    public Result getBlogPage(@RequestBody BlogQueryRequest blogQueryRequest){
         long current = blogQueryRequest.getCurrent();
         long pageSize = blogQueryRequest.getPageSize();
-        Page<Blog> pageList=blogService.getPageList(new Page(current,pageSize),blogQueryRequest,request);
+        Page<Blog> pageList=blogService.getPageList(new Page(current,pageSize),blogQueryRequest);
         return Result.success(pageList);
     }
 
     /**
      * 添加博客
      * @param blog
-     * @param request
      * @return
      */
     @PostMapping("/insert")
-    public Result insertBlog(@RequestBody Blog blog, HttpServletRequest request){
+    public Result insertBlog(@RequestBody Blog blog){
         User loginUser = userService.getLoginUser();
         if(loginUser==null){
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
@@ -174,12 +173,11 @@ public class BlogController {
     /**
      * 给博客点赞
      * @param idRequest
-     * @param request
      * @return
      */
     @PostMapping("/like")
-    public Result likeBlog(@RequestBody IdRequest idRequest,HttpServletRequest request){
-        Integer integer = blogService.likeBlog(idRequest, request);
+    public Result likeBlog(@RequestBody IdRequest idRequest){
+        Integer integer = blogService.likeBlog(idRequest);
 //        blogThreadPoolExecutor.execute(new Runnable() {
 //            @Override
 //            public void run() {
@@ -196,23 +194,21 @@ public class BlogController {
     /**
      * 收藏博客
      * @param idRequest
-     * @param request
      * @return
      */
     @PostMapping("/collect")
-    public Result likeCollect(@RequestBody IdRequest idRequest,HttpServletRequest request){
-        Integer integer = blogService.collectBlog(idRequest, request);
+    public Result likeCollect(@RequestBody IdRequest idRequest){
+        Integer integer = blogService.collectBlog(idRequest);
         return Result.success(integer);
     }
 
     /**
      * 添加评论
      * @param comment
-     * @param request
      * @return
      */
     @PostMapping("/insert/comment")
-    public Result insertComment(@RequestBody Comment comment,HttpServletRequest request){
+    public Result insertComment(@RequestBody Comment comment){
         User loginUser = userService.getLoginUser();
         if(loginUser==null){
             return Result.error(ErrorCode.NOT_LOGIN_ERROR);
@@ -263,8 +259,8 @@ public class BlogController {
      * @return
      */
     @PostMapping("/delete/comment")
-    public Result deleteComment(@RequestBody DeleteRequest deleteRequest,HttpServletRequest request){
-        User loginUser = userService.getLoginUser(request);
+    public Result deleteComment(@RequestBody DeleteRequest deleteRequest){
+        User loginUser = userService.getLoginUser();
         if(loginUser==null){
              return Result.error(ErrorCode.USER_STATUS_ERROR);
         }

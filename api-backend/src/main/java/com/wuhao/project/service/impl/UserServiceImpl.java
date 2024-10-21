@@ -4,10 +4,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wuhao.project.common.Result;
 import com.wuhao.project.model.request.user.UserRegisterRequest;
 import com.wuhao.project.model.response.FirstTokenResponse;
-import com.wuhao.project.model.response.LoginUserResponse;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.common.ErrorCode;
 import com.wuhao.project.exception.BusinessException;
@@ -21,9 +19,10 @@ import com.wuhao.project.util.RegexUtils;
 import com.wuhao.project.util.UserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -46,8 +45,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Autowired
     private UserMapper userMapper;
+
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private UserService userService;
     @Override
     public long userRegister(UserRegisterRequest userRegisterRequest) {
         // 判断参数是否为空
@@ -192,12 +195,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public boolean userLogout(HttpServletRequest servletRequest) {
-        if (servletRequest.getSession().getAttribute(USER_LOGIN_STATE) == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "未登录");
+    public boolean userLogout() {
+        User loginUser = userService.getLoginUser();
+        if(loginUser == null){
+            return true;
         }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // 移除登录态
-        servletRequest.getSession().removeAttribute(USER_LOGIN_STATE);
         return true;
     }
 
@@ -219,19 +223,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return flag;
     }
 
-    /**
-     * 是否为管理员
-     *
-     * @param request
-     * @return
-     */
-    @Override
-    public Boolean isAdmin(HttpServletRequest request) {
-        // 仅管理员可查询
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User user = (User) userObj;
-        return isAdmin(user);
-    }
+
 
     @Override
     public Boolean isAdmin(User user) {

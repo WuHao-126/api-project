@@ -65,8 +65,8 @@ implements BlogService {
     }
 
     @Override
-    public Integer likeBlog(IdRequest idRequest, HttpServletRequest request) {
-        User loginUser = userService.getLoginUser(request);
+    public Integer likeBlog(IdRequest idRequest) {
+        User loginUser = userService.getLoginUser();
         if(loginUser==null){
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
@@ -86,10 +86,10 @@ implements BlogService {
     }
 
     @Override
-    public Page<Blog> getPageList(Page page, BlogQueryRequest blogQueryRequest,HttpServletRequest request) {
+    public Page<Blog> getPageList(Page page, BlogQueryRequest blogQueryRequest) {
         Page<Blog> pageList=blogMapper.getPageList(page,blogQueryRequest);
         List<Blog> records = pageList.getRecords();
-        User loginUser = userService.getLoginUser(request);
+        User loginUser = userService.getLoginUser();
         if(loginUser==null){
             records.forEach(
                     e->{
@@ -121,8 +121,8 @@ implements BlogService {
     }
 
     @Override
-    public Integer collectBlog(IdRequest idRequest, HttpServletRequest request) {
-        User loginUser = userService.getLoginUser(request);
+    public Integer collectBlog(IdRequest idRequest) {
+        User loginUser = userService.getLoginUser();
         if(loginUser==null){
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }

@@ -48,10 +48,8 @@ public class AuthInterceptor {
 
         List<String> anyRole = Arrays.stream(authCheck.anyRole()).filter(StringUtils::isNotBlank).collect(Collectors.toList());
         String mustRole = authCheck.mustRole();
-        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-        HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
         // 当前登录用户
-        User user = userService.getLoginUser(request);
+        User user = userService.getLoginUser();
         // 拥有任意权限即通过
         if (CollectionUtils.isNotEmpty(anyRole)) {
             String userRole = user.getUserRole();

@@ -21,11 +21,11 @@ public interface BlogService extends IService<Blog> {
 
     QueryWrapper<Blog> getQueryWapper(BlogQueryRequest blogQueryRequest);
 
-    Integer likeBlog(IdRequest idRequest, HttpServletRequest request);
+    Integer likeBlog(IdRequest idRequest);
 
-    Page<Blog> getPageList(Page page, BlogQueryRequest blogQueryRequest,HttpServletRequest request);
+    Page<Blog> getPageList(Page page, BlogQueryRequest blogQueryReques);
 
-    Integer collectBlog(IdRequest idRequest, HttpServletRequest request);
+    Integer collectBlog(IdRequest idRequest);
 
     List<Long> getMyCollection(Long id);
 

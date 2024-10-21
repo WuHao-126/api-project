@@ -34,8 +34,8 @@ public class CustomizedController {
     private CustomizedService customizedService;
 
     @PostMapping("/add")
-    public Result insertCustomized(@RequestBody Customized customized, HttpServletRequest request){
-        User loginUser = userService.getLoginUser(request);
+    public Result insertCustomized(@RequestBody Customized customized){
+        User loginUser = userService.getLoginUser();
         if(loginUser==null){
             return Result.error(ErrorCode.NOT_LOGIN_ERROR);
         }
@@ -45,8 +45,8 @@ public class CustomizedController {
     }
 
     @PostMapping("/page")
-    public Result getPageList(Page page, HttpServletRequest request){
-        User loginUser = userService.getLoginUser(request);
+    public Result getPageList(Page page){
+        User loginUser = userService.getLoginUser();
         if(loginUser==null){
             return Result.error(ErrorCode.NOT_LOGIN_ERROR);
         }

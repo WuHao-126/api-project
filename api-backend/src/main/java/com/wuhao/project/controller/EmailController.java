@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,8 +39,8 @@ public class EmailController {
     private StringRedisTemplate redisTemplate;
 
     @PostMapping("/code")
-    public Result sendEmailCode(@RequestBody UserEmailCodeRequest request, HttpServletRequest httpServletRequest){
-        User loginUser = userService.getLoginUser(httpServletRequest);
+    public Result sendEmailCode(@RequestBody UserEmailCodeRequest request){
+        User loginUser = userService.getLoginUser();
         if(loginUser==null){
             return Result.error(ErrorCode.NOT_LOGIN_ERROR);
         }
@@ -70,7 +69,7 @@ public class EmailController {
     }
 
     @PostMapping("/send")
-    public Result sendEmailCode(@RequestBody UserEmailCodeRequest request){
+    public Result sendEmailCodes(@RequestBody UserEmailCodeRequest request){
         String email = request.getEmail();
         if(!RegexUtils.isEmailError(email)){
             return Result.error(ErrorCode.PARAMS_ERROR);
@@ -106,8 +105,8 @@ public class EmailController {
     }
 
     @PostMapping("/bind")
-    public Result bindEmail(@RequestBody UserEmailCodeRequest userEmailCodeRequest, HttpServletRequest request){
-        User loginUser = userService.getLoginUser(request);
+    public Result bindEmail(@RequestBody UserEmailCodeRequest userEmailCodeRequest){
+        User loginUser = userService.getLoginUser();
         if(loginUser==null){
             return Result.error(ErrorCode.NOT_LOGIN_ERROR);
         }

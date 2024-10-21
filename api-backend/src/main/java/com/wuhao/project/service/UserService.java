@@ -40,10 +40,9 @@ public interface UserService extends IService<User> {
 
     /**
      * 退出登录
-     * @param servletRequest
      * @return
      */
-    boolean userLogout(HttpServletRequest servletRequest);
+    boolean userLogout();
 
 
     /**
@@ -59,9 +58,6 @@ public interface UserService extends IService<User> {
      * @return
      */
     Boolean isAdmin(User user);
-
-    Boolean isAdmin(HttpServletRequest servletRequest);
-
 
 
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
