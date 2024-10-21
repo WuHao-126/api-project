@@ -161,7 +161,7 @@ public class UserController {
      */
     @PostMapping("/apply/ask")
     public Result applyAKSK(HttpServletRequest httpServletRequest){
-        User loginUser = userService.getLoginUser(httpServletRequest);
+        User loginUser = userService.getLoginUser();
         Long id = loginUser.getId();
         User user = userService.getById(id);
         if(user==null){

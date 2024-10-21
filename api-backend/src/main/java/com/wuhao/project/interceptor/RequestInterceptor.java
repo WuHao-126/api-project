@@ -7,12 +7,15 @@ import com.wuhao.project.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 
 /**
  * @Author: wuhao
@@ -20,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
  * @Description: TODO
  */
 @Slf4j
+@Component
 public class RequestInterceptor implements AsyncHandlerInterceptor {
 
     /**
@@ -34,13 +38,18 @@ public class RequestInterceptor implements AsyncHandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String token = replaceTokenBeran(request.getHeader("authorization"));
         if(StringUtils.isNotEmpty(token)){
-            Claims claims = JwtUtil.parseJwt(token);
-            if(claims != null){
-                String userId = claims.getSubject();
+            if(JwtUtil.validateToken(token)){
+                String userId = JwtUtil.getUserId(token);
                 LoginUser loginUser = new LoginUser();
                 loginUser.setToken(token);
                 loginUser.setUserId(userId);
-                UserContextHolder.setContext(loginUser);
+//                UserContextHolder.setContext(loginUser);
+                // 创建认证对象并保存到安全上下文
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
+//                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
         return true;

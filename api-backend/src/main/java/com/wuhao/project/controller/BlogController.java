@@ -24,6 +24,7 @@ import com.wuhao.project.support.sensitive.TrafficLimiter;
 import com.wuhao.project.support.sensitive.algorithm.CounterLimiter;
 import com.wuhao.project.support.sensitive.algorithm.SlidingTimeWindowLimiter;
 import com.wuhao.project.util.IdUtils;
+import com.wuhao.project.util.UserUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -83,7 +84,7 @@ public class BlogController {
      */
     @PostMapping("/insert")
     public Result insertBlog(@RequestBody Blog blog, HttpServletRequest request){
-        User loginUser = userService.getLoginUser(request);
+        User loginUser = userService.getLoginUser();
         if(loginUser==null){
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
@@ -112,7 +113,7 @@ public class BlogController {
     @PostMapping("/delete")
     public Result deleteBlogById(@RequestBody DeleteRequest deleteRequest){
         if(deleteRequest==null) {
-            return Result.error(ErrorCode.PARAMS_NULL);
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         Blog blog = blogService.getById(deleteRequest.getId());
         if(blog == null){
@@ -131,13 +132,12 @@ public class BlogController {
      */
     @PostMapping("/update")
     public Result updateBlog(@RequestBody Blog blog,HttpServletRequest request){
-        User loginUser = userService.getLoginUser(request);
-        if (loginUser==null){
+        String userId = UserUtil.getUserId();
+        if (StringUtils.isBlank(userId)){
             return Result.error(ErrorCode.USER_STATUS_ERROR);
         }
         //文章作者Id
         Long authorid = blog.getAuthorid();
-        Long userId = loginUser.getId();
         if(!authorid.equals(userId)){
             return Result.error(ErrorCode.PARAMS_ERROR);
         }
@@ -213,7 +213,7 @@ public class BlogController {
      */
     @PostMapping("/insert/comment")
     public Result insertComment(@RequestBody Comment comment,HttpServletRequest request){
-        User loginUser = userService.getLoginUser(request);
+        User loginUser = userService.getLoginUser();
         if(loginUser==null){
             return Result.error(ErrorCode.NOT_LOGIN_ERROR);
         }

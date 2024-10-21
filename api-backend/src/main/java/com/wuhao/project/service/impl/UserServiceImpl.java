@@ -168,7 +168,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.USER_PASSWORD_ERROR);
         }
         FirstTokenResponse firstTokenResponse = new FirstTokenResponse();
-        String token = JwtUtil.getToken(user.getId());
+        String token = JwtUtil.getToken(String.valueOf(user.getId()));
         firstTokenResponse.setUserId(user.getId());
         firstTokenResponse.setToken(token);
         redisTemplate.opsForValue().set("api:user:token:"+user.getId(),token,1, TimeUnit.DAYS);
@@ -176,14 +176,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public User getLoginUser(HttpServletRequest request) {
-        Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser = (User) attribute;
-        if (currentUser == null || currentUser.getId() == null) {
-            return null;
-        }
+    public User getLoginUser() {
+        String userId = UserUtil.getUserId();
         // 从数据库查询（追求性能的话可以注释，直接走缓存）
-        long userId = (currentUser.getId());
         User user = this.getById(userId);
         if (user == null) {
             throw new BusinessException(ErrorCode.USER_STATUS_ERROR);
