@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wuhao.project.model.request.user.UserLoginRequest;
 import com.wuhao.project.model.request.user.UserRegisterRequest;
 import com.wuhao.project.model.response.FirstTokenResponse;
 import com.wuhao.project.model.entity.User;
@@ -29,6 +30,8 @@ import org.springframework.util.DigestUtils;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.wuhao.project.constant.UserConstant.USER_LOGIN_STATE;
@@ -142,7 +145,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public FirstTokenResponse userLogin(String userAccount, String userPassword, String email) {
+    public FirstTokenResponse userLogin(UserLoginRequest userLoginRequest) {
+        String userAccount = userLoginRequest.getUserAccount();
+        String userPassword = userLoginRequest.getUserPassword();
+        String email = userLoginRequest.getEmail();
         //对账号合法性进行判断
         if(RegexUtils.isAccountError(userAccount)){
             throw new BusinessException(ErrorCode.USER_ACCOUNT_ILLEGAL);
@@ -171,7 +177,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.USER_PASSWORD_ERROR);
         }
         FirstTokenResponse firstTokenResponse = new FirstTokenResponse();
-        String token = JwtUtil.getToken(String.valueOf(user.getId()));
+        //JWT存储的信息
+        Map<String,Object> map = new HashMap<>();
+        map.put("userAccount",userAccount);
+        map.put("userId",user.getId());
+        String token = JwtUtil.createToken(map);
         firstTokenResponse.setUserId(user.getId());
         firstTokenResponse.setToken(token);
         redisTemplate.opsForValue().set("api:user:token:"+user.getId(),token,1, TimeUnit.DAYS);
@@ -181,6 +191,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public User getLoginUser() {
         String userId = UserUtil.getUserId();
+        if(StringUtils.isEmpty(userId)){
+            return null;
+        }
         // 从数据库查询（追求性能的话可以注释，直接走缓存）
         User user = this.getById(userId);
         if (user == null) {

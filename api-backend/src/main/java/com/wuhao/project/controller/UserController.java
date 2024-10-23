@@ -31,6 +31,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -99,15 +101,8 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public Result userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest servletRequest) {
-        if (userLoginRequest == null) {
-            return Result.error(ErrorCode.PARAMS_ERROR);
-        }
-        String userAccount = userLoginRequest.getUserAccount();
-        String userPassword = userLoginRequest.getUserPassword();
-        String email = userLoginRequest.getEmail();
-        FirstTokenResponse firstTokenResponse = userService.userLogin(userAccount, userPassword, email);
-//        servletRequest.getSession().setAttribute(USER_LOGIN_STATE,user);
+    public Result userLogin(@RequestBody UserLoginRequest userLoginRequest) {
+        FirstTokenResponse firstTokenResponse = userService.userLogin(userLoginRequest);
         return Result.success(firstTokenResponse);
     }
 
@@ -289,8 +284,14 @@ public class UserController {
      */
     @PostMapping("/logout")
     public Result userLogout(){
-        boolean flag=userService.userLogout();
-        return Result.success(flag);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            // 这里可以添加其他注销逻辑，比如记录日志
+            SecurityContextHolder.clearContext(); // 清除 SecurityContext
+        }
+        return Result.success();
+//        boolean flag=userService.userLogout();
+//        return Result.success(flag);
     }
 
     /**

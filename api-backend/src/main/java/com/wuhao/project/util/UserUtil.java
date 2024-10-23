@@ -34,10 +34,10 @@ public class UserUtil {
 
     public static String getUserId(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null){
-            return authentication.getName();
+        if (authentication != null && authentication.isAuthenticated()) {
+            return  authentication.getPrincipal().toString(); // 获取自定义用户信息
         }
-        return "";
+        return null;
     }
 
 }

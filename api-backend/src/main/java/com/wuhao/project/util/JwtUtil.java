@@ -25,20 +25,17 @@ public class JwtUtil {
      * @return
      */
     public static String getToken(String userId ) {
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userId);
+        return "";
     }
 
     /**
      * 创建token
      * @param claims
-     * @param userId
      * @return
      */
-    private static String createToken(Map<String, Object> claims, String userId) {
+    public  static String createToken(Map<String, Object> claims) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(userId)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
@@ -51,7 +48,10 @@ public class JwtUtil {
      * @return
      */
     public static boolean validateToken(String token) {
-        final String userId = getUserId(token);
+        final Claims claims = getClaims(token);
+        if (claims == null)
+            return false;
+        String userId = claims.getSubject();
         return (StringUtils.isNotEmpty(userId) && !isTokenExpired(token));
     }
 
@@ -78,11 +78,7 @@ public class JwtUtil {
      * @param token
      * @return
      */
-    public static String getUserId(String token) {
-        JwtParser jwtParser = Jwts.parser().setSigningKey(SECRET_KEY);
-        if(jwtParser != null){
-            return jwtParser.parseClaimsJws(token).getBody().getSubject();
-        }
-        return "";
+    public static Claims getClaims(String token) {
+         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
 }

@@ -40,6 +40,8 @@ public class WebInfoController {
      */
     @GetMapping
     public Result getWebInfo(){
+        String userId = UserUtil.getUserId();
+        log.error("该用户为:{}",userId);
         return Result.success(webInfoMapper.getWebInfo());
     }
 

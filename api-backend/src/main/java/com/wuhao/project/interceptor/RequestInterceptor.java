@@ -8,7 +8,6 @@ import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -39,7 +38,8 @@ public class RequestInterceptor implements AsyncHandlerInterceptor {
         String token = replaceTokenBeran(request.getHeader("authorization"));
         if(StringUtils.isNotEmpty(token)){
             if(JwtUtil.validateToken(token)){
-                String userId = JwtUtil.getUserId(token);
+                Claims claims = JwtUtil.getClaims(token);
+                String userId = claims.getSubject();
                 LoginUser loginUser = new LoginUser();
                 loginUser.setToken(token);
                 loginUser.setUserId(userId);
@@ -49,7 +49,7 @@ public class RequestInterceptor implements AsyncHandlerInterceptor {
                         new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
 //                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+//                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
         return true;

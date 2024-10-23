@@ -11,6 +11,7 @@ public enum ErrorCode {
     USER_PASSWORD_ERROR(40002,"密码错误"),
 
     NOT_LOGIN_ERROR(40100, "未登录"),
+    USER_LOGIN_EXPIRE(411,"登录状态已过期"),
     USER_STATUS_ERROR(40102,"账号状态异常"),
     USER_STATUS_ONE(40103,"此账号已被封禁"),
     USER_STATUS_TWO(40104,"此账号已被注销"),
