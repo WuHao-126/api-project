@@ -1,18 +1,12 @@
 package com.wuhao.project.util;
 
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONUtil;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.model.response.LoginUser;
 import com.wuhao.project.model.response.LoginUserResponse;
-import com.wuhao.project.security.UserContextHolder;
-import com.wuhao.project.service.UserService;
-import org.checkerframework.checker.units.qual.A;
+import com.wuhao.project.security.SecurityContextHolder;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
+
 
 /**
  * @Author: wuhao
@@ -32,10 +26,14 @@ public class UserUtil {
         return loginUserResponse;
     }
 
+    public static LoginUser getLoginUser() {
+        return SecurityContextHolder.get("loginUser",LoginUser.class);
+    }
+
     public static String getUserId(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            return  authentication.getPrincipal().toString(); // 获取自定义用户信息
+        LoginUser loginUser = getLoginUser();
+        if(loginUser != null){
+            return loginUser.getUserId();
         }
         return null;
     }
