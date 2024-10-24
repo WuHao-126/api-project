@@ -8,9 +8,6 @@ import com.wuhao.project.mapper.WebInfoMapper;
 import com.wuhao.project.model.entity.ExceptionalLog;
 import com.wuhao.project.model.entity.Tag;
 import com.wuhao.project.model.entity.WebInfo;
-import com.wuhao.project.model.response.LoginUser;
-import com.wuhao.project.model.response.TimeoutInterfaceResponse;
-import com.wuhao.project.security.UserContextHolder;
 import com.wuhao.project.util.UserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +15,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,8 +36,6 @@ public class WebInfoController {
      */
     @GetMapping
     public Result getWebInfo(){
-        String userId = UserUtil.getUserId();
-        log.error("该用户为:{}",userId);
         return Result.success(webInfoMapper.getWebInfo());
     }
 

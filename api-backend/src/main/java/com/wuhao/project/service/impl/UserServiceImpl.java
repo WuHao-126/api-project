@@ -191,6 +191,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public User getLoginUser() {
         String userId = UserUtil.getUserId();
+        log.error("当前用户登录Id为：{}",userId);
         if(StringUtils.isEmpty(userId)){
             return null;
         }

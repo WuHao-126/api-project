@@ -1,14 +1,18 @@
 package com.wuhao.project.interceptor;
 
+import cn.hutool.extra.spring.SpringUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.model.response.LoginUser;
-import com.wuhao.project.security.UserContextHolder;
+import com.wuhao.project.security.SecurityContextHolder;
+import com.wuhao.project.service.UserService;
 import com.wuhao.project.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -35,21 +39,25 @@ public class RequestInterceptor implements AsyncHandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    //如果 handler 不是 HandlerMethod，则返回 true，表示继续处理该请求。这通常适用于静态资源（如图片、CSS、JavaScript 文件）等不需要经过控制器处理的请求。
+        if (!(handler instanceof HandlerMethod)) {
+            return true;
+        }
+
         String token = replaceTokenBeran(request.getHeader("authorization"));
         if(StringUtils.isNotEmpty(token)){
-            if(JwtUtil.validateToken(token)){
-                Claims claims = JwtUtil.getClaims(token);
-                String userId = claims.getSubject();
-                LoginUser loginUser = new LoginUser();
-                loginUser.setToken(token);
-                loginUser.setUserId(userId);
-//                UserContextHolder.setContext(loginUser);
-                // 创建认证对象并保存到安全上下文
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userId, null, new ArrayList<>());
-//                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-//                SecurityContextHolder.getContext().setAuthentication(authToken);
+            Claims claims = JwtUtil.getClaims(token);
+            if(claims.get("userId") != null){
+                String userId = claims.get("userId").toString();
+                log.error("本次登录用户是：{}，toekn为：{}",userId,token);
+                UserService userService = SpringUtil.getBean(UserService.class);
+                User user = userService.getOne(new QueryWrapper<User>().eq("id", userId));
+                if(user != null){
+                    LoginUser loginUser = new LoginUser();
+                    loginUser.setUserId(userId);
+                    loginUser.setToken(token);
+                    SecurityContextHolder.set("loginUser",loginUser);
+                }
             }
         }
         return true;

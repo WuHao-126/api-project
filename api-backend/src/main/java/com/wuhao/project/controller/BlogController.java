@@ -15,7 +15,6 @@ import com.wuhao.project.model.entity.Blog;
 import com.wuhao.project.model.entity.Comment;
 import com.wuhao.project.model.entity.User;
 import com.wuhao.project.model.request.blog.BlogQueryRequest;
-import com.wuhao.project.model.response.HotBlogResponse;
 import com.wuhao.project.service.BlogService;
 import com.wuhao.project.service.CommentService;
 import com.wuhao.project.service.UserService;
