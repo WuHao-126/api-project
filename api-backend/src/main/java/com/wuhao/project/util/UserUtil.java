@@ -6,6 +6,7 @@ import com.wuhao.project.model.response.LoginUserResponse;
 import com.wuhao.project.security.SecurityContextHolder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
 
 
 /**
@@ -13,7 +14,7 @@ import org.springframework.security.core.Authentication;
  * @Datetime: TODO
  * @Description: TODO
  */
-
+@Service
 public class UserUtil {
 
 

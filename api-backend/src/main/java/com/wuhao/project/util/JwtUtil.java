@@ -17,16 +17,6 @@ import java.util.Map;
  */
 public class JwtUtil {
     private static final String SECRET_KEY = "your_secret_key"; // 更换为自己的密钥
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 天
-
-    /**
-     * 获取Token
-     * @param userId
-     * @return
-     */
-    public static String getToken(String userId ) {
-        return "";
-    }
 
     /**
      * 创建token
@@ -36,8 +26,6 @@ public class JwtUtil {
     public  static String createToken(Map<String, Object> claims) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
     }
@@ -52,26 +40,11 @@ public class JwtUtil {
         if (claims == null)
             return false;
         String userId = claims.getSubject();
-        return (StringUtils.isNotEmpty(userId) && !isTokenExpired(token));
+        return StringUtils.isNotEmpty(userId);
     }
 
-    /**
-     * token是否过期
-     * @param token
-     * @return
-     */
-    private static boolean isTokenExpired(String token) {
-        return getExpiration(token).before(new Date());
-    }
 
-    /**
-     *从 JWT 中提取过期时间
-     * @param token
-     * @return
-     */
-    private static Date getExpiration(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getExpiration();
-    }
+
 
     /**
      *  从 JWT 中提取用户Id

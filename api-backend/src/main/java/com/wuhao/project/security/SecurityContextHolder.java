@@ -33,4 +33,8 @@ public class SecurityContextHolder {
         }
         return map;
     }
+
+    public static void remove() {
+        THREAD_LOCAL.remove();
+    }
 }

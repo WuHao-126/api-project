@@ -106,6 +106,15 @@ public class UserController {
         return Result.success(firstTokenResponse);
     }
 
+    /**
+     * 当前用户退出
+     * @return
+     */
+    @PostMapping("/logout")
+    public Result userLogout(){
+        return Result.success(userService.userLogout());
+    }
+
     @PostMapping("/admin/login")
     public Result adminLogin(@RequestBody UserLoginRequest userLoginRequest,HttpServletRequest servletRequest){
         if (userLoginRequest == null) {
@@ -277,21 +286,6 @@ public class UserController {
             throw new RuntimeException("accessKey为空");
         }
         return userService.getAccessKeyUser(accessKey);
-    }
-    /**
-     * 当前用户退出
-     * @return
-     */
-    @PostMapping("/logout")
-    public Result userLogout(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            // 这里可以添加其他注销逻辑，比如记录日志
-            SecurityContextHolder.clearContext(); // 清除 SecurityContext
-        }
-        return Result.success();
-//        boolean flag=userService.userLogout();
-//        return Result.success(flag);
     }
 
     /**

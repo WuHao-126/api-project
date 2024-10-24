@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.wuhao.project.constant.RedisConstant;
 import com.wuhao.project.model.request.user.UserLoginRequest;
 import com.wuhao.project.model.request.user.UserRegisterRequest;
 import com.wuhao.project.model.response.FirstTokenResponse;
@@ -13,6 +14,7 @@ import com.wuhao.project.exception.BusinessException;
 import com.wuhao.project.mapper.UserMapper;
 import com.wuhao.project.model.enmus.UserRoleEnum;
 import com.wuhao.project.model.request.user.UserQueryRequest;
+import com.wuhao.project.model.response.LoginUser;
 import com.wuhao.project.service.UserService;
 import com.wuhao.project.util.IdUtils;
 import com.wuhao.project.util.JwtUtil;
@@ -20,6 +22,8 @@ import com.wuhao.project.util.RegexUtils;
 import com.wuhao.project.util.UserUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.Authentication;
@@ -51,6 +55,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     @Autowired
     private UserService userService;
@@ -184,7 +191,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String token = JwtUtil.createToken(map);
         firstTokenResponse.setUserId(user.getId());
         firstTokenResponse.setToken(token);
-        redisTemplate.opsForValue().set("api:user:token:"+user.getId(),token,1, TimeUnit.DAYS);
+        RBucket<User> bucket = redissonClient.getBucket(RedisConstant.API_USER_TOKEN + token);
+        bucket.set(user,1,TimeUnit.DAYS);
         return firstTokenResponse;
     }
 
@@ -210,11 +218,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public boolean userLogout() {
-        User loginUser = userService.getLoginUser();
+        LoginUser loginUser = UserUtil.getLoginUser();
         if(loginUser == null){
             return true;
         }
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String token = loginUser.getToken();
+        redissonClient.getBucket(RedisConstant.API_USER_TOKEN+token).delete();
         // 移除登录态
         return true;
     }
