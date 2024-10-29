@@ -4,6 +4,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wuhao.project.constant.RedisConstant;
 import com.wuhao.project.model.entity.User;
+import com.wuhao.project.model.response.FirstTokenResponse;
 import com.wuhao.project.model.response.LoginUser;
 import com.wuhao.project.security.SecurityContextHolder;
 import com.wuhao.project.service.UserService;
@@ -53,9 +54,9 @@ public class RequestInterceptor implements AsyncHandlerInterceptor {
                 String userId = claims.get("userId").toString();
                 log.error("本次登录用户是：{}，token为：{}",userId,token);
                 RedissonClient redissonClient = SpringUtil.getBean(RedissonClient.class);
-                RBucket<User> bucket = redissonClient.getBucket(RedisConstant.API_USER_TOKEN+token);
-                User user = bucket.get();
-                if(user != null){
+                RBucket<FirstTokenResponse> bucket = redissonClient.getBucket(RedisConstant.API_USER_TOKEN+userId);
+                FirstTokenResponse user = bucket.get();
+                if(user != null && token.equals(user.getToken())){
                     LoginUser loginUser = new LoginUser();
                     loginUser.setUserId(userId);
                     loginUser.setToken(token);

@@ -6,8 +6,8 @@ public enum ErrorCode {
     USER_ACCOUNT_PASSWORD_ERROR(40000,"账号或者密码错误"),
     USER_ACCOUNT_NULL(40001,"账号为空"),
     USER_PASSWORD_NULL(40002,"密码为空"),
-    USER_ACCOUNT_ILLEGAL(40003,"账号非法"),
-    USER_PASSWORD_ILLEGAL(40004,"密码非法"),
+    USER_ACCOUNT_ILLEGAL(40003,"账号中含有特殊字符或长度不满足"),
+    USER_PASSWORD_ILLEGAL(40004,"密码中含有特殊字符或长度不满足"),
     USER_PASSWORD_ERROR(40002,"密码错误"),
 
     NOT_LOGIN_ERROR(40100, "未登录"),
@@ -15,6 +15,7 @@ public enum ErrorCode {
     USER_STATUS_ERROR(40102,"账号状态异常"),
     USER_STATUS_ONE(40103,"此账号已被封禁"),
     USER_STATUS_TWO(40104,"此账号已被注销"),
+    USER_IS_NULL(4000,"没有此用户"),
     USER_REGISTER_ERROR(4103,"注册失败"),
     ALREADY_REGISTER(4104,"已注册"),
     ERROR_CODE(4105,"验证码错误"),

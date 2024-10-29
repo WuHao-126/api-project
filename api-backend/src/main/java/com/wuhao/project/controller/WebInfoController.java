@@ -30,6 +30,7 @@ public class WebInfoController {
     private WebInfoMapper webInfoMapper;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
     /**
      * 获取服务器信息
      * @return
@@ -69,6 +70,11 @@ public class WebInfoController {
         stringRedisTemplate.opsForValue().set("api:web:notice",notice,day, TimeUnit.DAYS);
         return Result.success();
     }
+
+    /**
+     * 删除公告
+     * @return
+     */
     @GetMapping("/notice/delete")
     @AuthCheck(anyRole = {"superadmin","admin"})
     public Result deleteNotice(){
@@ -76,6 +82,10 @@ public class WebInfoController {
         return Result.success();
     }
 
+    /**
+     * 获取公告
+     * @return
+     */
     @GetMapping("/notice")
     public Result getNotice(){
         String s = stringRedisTemplate.opsForValue().get("api:web:notice");
@@ -84,18 +94,34 @@ public class WebInfoController {
         }
         return Result.success(s);
     }
+
+    /**
+     * 获取系统异常列表
+     * @param page
+     * @return
+     */
     @GetMapping("/exceptional")
     public Result getExceptionalList(Page page){
         Page<ExceptionalLog> page1=webInfoMapper.getExceptionalList(page);
         return Result.success(page1);
     }
 
+    /**
+     * 获取列表
+     * @param page
+     * @return
+     */
     @PostMapping("/all/tag")
     public Result getTagsList(Page page){
         Page<Tag> page1=webInfoMapper.getAllTags(page);
         return Result.success(page1);
     }
 
+    /**
+     * 删除标签
+     * @param id
+     * @return
+     */
     @GetMapping("/tag/delete")
     @AuthCheck(anyRole = {"admin,superadmin"})
     public Result deleteTag(Long id){
@@ -114,6 +140,11 @@ public class WebInfoController {
         return Result.success();
     }
 
+    /**
+     * 修改标签
+     * @param tag
+     * @return
+     */
     @PostMapping("/tag/update")
     @AuthCheck(anyRole = {"superadmin","admin"})
     public Result updateTag(@RequestBody Tag tag){
