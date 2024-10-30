@@ -63,11 +63,9 @@ xxl:
   job:
     admin:
       addresses: http://localhost:8080/xxl-job-admin
-    accessToken:
     executor:
-      appname: api
-      address: http://localhost:8080
+      appname: api-backend
       ip:
-      port: 8080
-      logpath: /path/to/log
+      port: 9989
+      address:
       logretentiondays: 30

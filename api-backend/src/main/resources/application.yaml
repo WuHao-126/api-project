@@ -14,14 +14,15 @@ security:
       - /blog/**
       - /interface/**
       - /email/**
+
 xxl:
   job:
-    admin:
-      address: http://localhost:8080/xxl-job-admin
     executor:
-      appname: api
-      address: http://localhost:8080
-      logpath: /path/to/log
+      appname: api_backend
+      port: 7070
       logretentiondays: 30
-
-
+      # 自己 ip
+      ip:
+    admin:
+      addresses: http://127.0.0.1:7070/xxl-job-admin
+    accessToken: default_token

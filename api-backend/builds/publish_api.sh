@@ -17,7 +17,7 @@ if [[ \$(docker images -q $IMAGES_NAME) ]]; then
    docker rm $IMAGES_NAME
    docker rmi $IMAGES_NAME
 else
-   echo '不存在镜像，打包'
+   echo '不存在镜像，打包'l
 fi
 
  cd $REMOTE_PATH
@@ -28,3 +28,9 @@ fi
 echo "publish success!"
 
 sleep 5
+
+
+#代码解释
+# StrictHostKeyChecking=no  不要每次去验证身份
+# if 语句必须要 fi进行配合，一个开始一个结尾
+#
