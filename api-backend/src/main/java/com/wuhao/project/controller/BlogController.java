@@ -135,7 +135,7 @@ public class BlogController {
             return Result.error(ErrorCode.USER_STATUS_ERROR);
         }
         //文章作者Id
-        Long authorid = blog.getAuthorid();
+        String authorid = blog.getAuthorid().toString();
         if(!authorid.equals(userId)){
             return Result.error(ErrorCode.PARAMS_ERROR);
         }

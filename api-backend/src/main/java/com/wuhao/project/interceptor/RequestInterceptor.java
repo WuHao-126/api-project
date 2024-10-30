@@ -52,7 +52,7 @@ public class RequestInterceptor implements AsyncHandlerInterceptor {
             Claims claims = JwtUtil.getClaims(token);
             if(claims.get("userId") != null){
                 String userId = claims.get("userId").toString();
-                log.error("本次登录用户是：{}，token为：{}",userId,token);
+                log.info("本次登录用户是：{}，token为：{}",userId,token);
                 RedissonClient redissonClient = SpringUtil.getBean(RedissonClient.class);
                 RBucket<FirstTokenResponse> bucket = redissonClient.getBucket(RedisConstant.API_USER_TOKEN+userId);
                 FirstTokenResponse user = bucket.get();

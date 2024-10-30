@@ -1,6 +1,6 @@
 spring:
   application:
-    name: apibackend
+    name: api
   profiles:
     active: prod
   session:
@@ -14,4 +14,14 @@ security:
       - /blog/**
       - /interface/**
       - /email/**
+xxl:
+  job:
+    admin:
+      address: http://localhost:8080/xxl-job-admin
+    executor:
+      appname: api
+      address: http://localhost:8080
+      logpath: /path/to/log
+      logretentiondays: 30
+
 

@@ -58,3 +58,16 @@ minio:
   endpoint: http://101.126.87.57:9090
   accessKey: minioadmin
   secretKey: minioadmin
+
+xxl:
+  job:
+    admin:
+      addresses: http://localhost:8080/xxl-job-admin
+    accessToken:
+    executor:
+      appname: api
+      address: http://localhost:8080
+      ip:
+      port: 8080
+      logpath: /path/to/log
+      logretentiondays: 30

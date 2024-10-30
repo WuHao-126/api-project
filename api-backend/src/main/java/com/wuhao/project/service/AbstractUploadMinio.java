@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Value;
  * @Datetime: TODO
  * @Description: TODO
  */
-public abstract   class AbstractUploadMinio implements UploadService{
+public abstract  class AbstractUploadMinio implements UploadService{
 
     @Value("${minio.endpoint}")
-    private String endpoint="http://182.92.7.24:9090";
+    private String endpoint;
 
     @Value("${minio.accessKey}")
     private String accessKey;
@@ -31,6 +31,7 @@ public abstract   class AbstractUploadMinio implements UploadService{
                 .build();
         return upload(minioClient,uploadFileVo);
     }
+
 
     public abstract String upload(MinioClient minioClient,UploadFileVo fileVo);
 }
