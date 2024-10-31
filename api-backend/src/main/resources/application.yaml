@@ -26,3 +26,5 @@ xxl:
     admin:
       addresses: http://127.0.0.1:7070/xxl-job-admin
     accessToken: default_token
+file:
+  downloadUrl: "E://workspace//"

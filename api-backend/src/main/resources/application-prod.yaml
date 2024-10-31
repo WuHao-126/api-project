@@ -1,6 +1,6 @@
 spring:
   application:
-    name: apibackend
+    name: api
   profiles:
     active: dev
   session:
@@ -69,3 +69,6 @@ xxl:
       port: 9989
       address:
       logretentiondays: 30
+
+file:
+  downloadUrl: "E://workspace//"

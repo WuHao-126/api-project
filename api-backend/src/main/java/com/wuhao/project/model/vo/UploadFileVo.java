@@ -12,13 +12,16 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class UploadFileVo {
+    private String absolutePath;
 
-    String absolutePath;
-    String originalFilename;
-    String contentType;
-    String type;
-    String bucketName;
+    private String originalFilename;
+
+    private String newFileName;
+
+    private String contentType;
+
+    private String type;
+
+    private String bucketName;
 }
